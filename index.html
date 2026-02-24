@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanineGuard | Smart Stray Dog Monitoring System</title>
+    <style>
+        /* Base Styles & Variables - Copied from Old UI */
+        :root {
+            --primary: #1e40af; /* Deep Blue - Trust */
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316; /* Safety Orange - Action/Warning */
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            line-height: 1.2;
+            font-weight: 800;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation - Old UI Styling */
+        nav {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            color: var(--secondary);
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            white-space: nowrap;
+        }
+
+        /* Mobile Nav Adjustments */
+        @media (max-width: 768px) {
+            nav { height: auto; padding: 1rem 0; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+        }
+
+        /* Hero Section - Old UI Scaling */
+        .hero {
+            padding: 5rem 0;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* CTA Cards Section - Old UI styling */
+        .cta-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-top: -3rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        @media (min-width: 768px) {
+            .cta-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .cta-card {
+            background: var(--white);
+            padding: 3rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .cta-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .cta-card.citizen { background: linear-gradient(to bottom right, #ffffff, #fff7ed); }
+        .cta-card.ngo { background: linear-gradient(to bottom right, #ffffff, #f0f9ff); }
+
+        .cta-card h3 { font-size: 1.75rem; margin-bottom: 1rem; color: var(--primary-dark); }
+        .cta-card p { margin-bottom: 2rem; color: var(--text-light); }
+
+        /* Button Styling - Old UI */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            text-align: center;
+            border: none;
+        }
+
+        .btn-primary { background-color: var(--secondary); color: var(--white); }
+        .btn-primary:hover { background-color: #ea580c; }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background-color: var(--primary); color: var(--white); }
+
+        /* Features Section - Old UI */
+        .section-padding { padding: 6rem 0; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-header h2 { font-size: 2.25rem; margin-bottom: 1rem; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+
+        .feature-card {
+            background: var(--bg-light);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .feature-card:hover {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* Footer - Old UI */
+        footer { background: #111827; color: #d1d5db; padding: 4rem 0 2rem; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+        .footer-brand h3 { color: white; margin-bottom: 1.5rem; }
+        .footer-links h4 { color: white; margin-bottom: 1.5rem; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: #9ca3af; text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: var(--secondary); }
+        .footer-bottom { padding-top: 2rem; border-top: 1px solid #374151; text-align: center; font-size: 0.875rem; }
+
+        /* Modal System - Optimized for interaction */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
+        .modal p { color: var(--text-light); margin-bottom: 1.5rem; }
+        .modal input { 
+            width: 100%; padding: 0.75rem; margin-bottom: 1rem; 
+            border: 1px solid #d1d5db; border-radius: 0.5rem;
+            text-align: center; font-size: 1rem;
+        }
+        .modal .modal-btns { display: flex; gap: 0.75rem; }
+        .modal button { flex: 1; cursor: pointer; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 700; transition: 0.2s; }
+        .btn-confirm { background: var(--primary); color: white; }
+        .btn-close { background: #e5e7eb; color: var(--text-dark); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navigation with New Redirection Paths -->
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="awareness.html" class="nav-link">Awareness Hub</a>
+                <a href="ngo-login.html" class="nav-link">NGO Portal</a>
+                <a href="#" class="btn btn-primary nav-btn" onclick="showMessage('Notice', 'Thank you for your interest in supporting our NGO. A secure payment gateway will open shortly.')">Support Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="container">
+            <h1>Smart Stray Dog Bite Monitoring System</h1>
+            <p>Leveraging AI-driven insights and real-time community reporting to create safer neighborhoods and data-backed animal welfare strategies.</p>
+        </div>
+    </header>
+
+    <!-- CTA Grid with New Redirection Paths -->
+    <section class="container">
+        <div class="cta-grid">
+            <a href="report.html" class="cta-card citizen">
+                <div>
+                    <h3>Report an Incident</h3>
+                    <p>Bitten or encountered an aggressive stray? Log the location and details instantly to alert local authorities and help map risk zones.</p>
+                </div>
+                <span class="btn btn-primary">Report Now (Citizen)</span>
+            </a>
+            <a href="ngo-login.html" class="cta-card ngo">
+                <div>
+                    <h3>NGO Dashboard</h3>
+                    <p>Access statistics, manage incident logs, and coordinate with municipal authorities via our centralized management portal.</p>
+                </div>
+                <span class="btn btn-outline">Enter NGO Portal</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section with New Redirection Paths -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="section-header">
+                <h2>Comprehensive Prevention Tools</h2>
+                <p>Advanced technology meeting grassroots action for public safety.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <h3>Incident Reporting</h3>
+                    <p>Easy-to-use mobile interface for citizens to report dog bite incidents with photo evidence and GPS coordinates.</p>
+                </div>
+
+                <a href="risk-map.html" class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>AI Risk Zone Mapping</h3>
+                    <p>Proprietary algorithms analyze historical data to predict potential high-risk areas before incidents occur. View Live Map →</p>
+                </a>
+
+                <a href="awareness.html" class="feature-card">
+                    <div class="feature-icon">📢</div>
+                    <h3>Awareness Hub</h3>
+                    <p>Essential safety tips, first-aid guides, and upcoming community vaccination schedules.</p>
+                </a>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💉</div>
+                    <h3>Vaccination Planning</h3>
+                    <p>Automated scheduling and tracking for Anti-Rabies Vaccination (ARV) and sterilization (ABC) programs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section class="section-padding" style="background-color: var(--bg-light);">
+        <div class="container" style="text-align: center;">
+            <h2 style="margin-bottom: 2rem;">Help Us Make Cities Safer</h2>
+            <p style="max-width: 600px; margin: 0 auto 3rem; color: var(--text-light);">
+                Whether you are a concerned citizen, a veterinarian, or a government official, CanineGuard provides the tools needed to manage human-animal conflict effectively.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showMessage('Subscription', 'Newsletter subscription active!')">Join Our Newsletter</button>
+                <button class="btn btn-outline" onclick="showMessage('Partnership', 'Redirecting to Partner Program...')">Partner with Us</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>CanineGuard NGO</h3>
+                    <p>Bridging the gap between animal welfare and public safety through data-driven innovation.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="awareness.html">Rabies Awareness</a></li>
+                        <li><a href="awareness.html">Dog Behavior Guide</a></li>
+                        <li><a href="awareness.html">First Aid Tips</a></li>
+                        <li><a href="#">Legal Framework</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Organization</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Transparency Report</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="#">Twitter/X</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2024 CanineGuard Monitoring Systems. All rights reserved. Registered NGO #8271-92.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Access Modal - Using New Logic -->
+    <div id="msgModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modalTitle">Notice</h3>
+            <p id="modalMsg"></p>
+            <div id="loginField" style="display: none;">
+                <input type="password" id="accessKey" placeholder="Enter NGO Access Key">
+            </div>
+            <div class="modal-btns">
+                <button id="modalBtnConfirm" class="btn-confirm" onclick="closeModal()">Understood</button>
+                <button id="modalBtnClose" class="btn-close" onclick="closeModal()" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script - Combined Logic from New Version -->
+    <script>
+        window.showMessage = function(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = text;
+            document.getElementById('loginField').style.display = 'none';
+            document.getElementById('modalBtnClose').style.display = 'none';
+            document.getElementById('modalBtnConfirm').innerText = "Understood";
+            document.getElementById('modalBtnConfirm').disabled = false;
+            document.getElementById('modalBtnConfirm').onclick = window.closeModal;
+            document.getElementById('msgModal').style.display = 'flex';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('msgModal').style.display = 'none';
+            const keyInput = document.getElementById('accessKey');
+            if(keyInput) keyInput.value = '';
+        };
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('msgModal');
+            if (event.target == modal) {
+                window.closeModal();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incident Management | CanineGuard NGO</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-links-wrapper { display: flex; align-items: center; }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover, .nav-link.active { 
+            color: var(--primary); 
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        /* Header & Filters */
+        .page-header { padding: 2rem 0; }
+        .page-header h1 { font-size: 1.8rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box { flex: 2; min-width: 250px; }
+        .search-box input { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; }
+
+        .filter-select { flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; background: white; min-width: 150px; }
+
+        /* Incident Cards */
+        #incidentList { padding-bottom: 5rem; }
+
+        .incident-card {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--shadow);
+            border-left: 6px solid #cbd5e1;
+            display: grid;
+            grid-template-columns: 120px 1fr 180px 240px;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .incident-card:hover { transform: translateX(5px); box-shadow: var(--shadow-hover); }
+
+        .incident-card.severe-sev { border-left-color: var(--danger); }
+        .incident-card.moderate-sev { border-left-color: var(--warning); }
+        .incident-card.minor-sev { border-left-color: var(--success); }
+
+        .case-id { font-weight: 800; color: var(--primary); font-size: 0.85rem; font-family: monospace; }
+        .incident-details h4 { font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 0.25rem; }
+        .incident-details p { font-size: 0.85rem; color: var(--text-light); }
+
+        .badge { padding: 0.35rem 0.75rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+        .badge-pending { background: #fee2e2; color: #991b1b; }
+        .badge-progress { background: #eff6ff; color: #1e40af; }
+        .badge-resolved { background: #d1fae5; color: #065f46; }
+        .badge-false-alarm { background: #f3f4f6; color: #4b5563; }
+
+        .action-btns { display: flex; gap: 0.5rem; }
+        .btn { padding: 0.6rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); transition: 0.2s; }
+        .btn-assign { background: var(--primary); color: white; border: none; }
+        .btn-status { background: var(--white); color: var(--text-dark); }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.25rem;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal h3 { margin-bottom: 0.5rem; color: var(--primary-dark); }
+        .modal p { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.5rem; }
+        .modal select, .modal textarea, .modal input { 
+            width: 100%; padding: 0.75rem; margin-bottom: 1rem; 
+            border: 1px solid var(--border); border-radius: 0.5rem; font-family: inherit;
+        }
+
+        @media (max-width: 950px) {
+            .incident-card { grid-template-columns: 1fr; gap: 1rem; }
+            .action-btns { justify-content: flex-start; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="ngo-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="volunteers.html" class="nav-link">Volunteers</a>
+                <a href="ngo-incidents.html" class="nav-link active">Operations</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>Mission Control</h1>
+            <p>Direct oversight of reported cases, responder dispatch, and real-time status updates.</p>
+        </header>
+
+        <section class="filters">
+            <div class="search-box">
+                <input type="text" placeholder="Search Case ID or Location..." id="searchInput">
+            </div>
+            <select class="filter-select" id="severityFilter">
+                <option value="">All Severities</option>
+                <option value="severe">Severe</option>
+                <option value="moderate">Moderate</option>
+                <option value="minor">Minor</option>
+            </select>
+            <select class="filter-select" id="statusFilter">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="false-alarm">False Alarm</option>
+            </select>
+        </section>
+
+        <section id="incidentList">
+            <div style="text-align: center; padding: 3rem; color: var(--text-light);">
+                Connecting to secure incident database...
+            </div>
+        </section>
+    </main>
+
+    <!-- Assign Modal -->
+    <div id="assignModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Assign Responder</h3>
+            <p id="assignCaseText">Case #ID</p>
+            <label style="font-size: 0.8rem; font-weight: 700;">Field Volunteer / Team</label>
+            <select id="volunteerName">
+                <option value="">Choose a responder...</option>
+                <option>Rahul S. (Rescue Team A)</option>
+                <option>Sarah J. (Veterinary Support)</option>
+                <option>Michael K. (Field Scout)</option>
+                <option>Priya M. (Quick Response)</option>
+            </select>
+            <label style="font-size: 0.8rem; font-weight: 700;">Instructions</label>
+            <textarea id="assignInstructions" placeholder="Special notes for the dispatch team..."></textarea>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-status" style="flex: 1;" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-assign" style="flex: 1;" id="confirmAssignBtn">Confirm Dispatch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="statusModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Update Mission Status</h3>
+            <p id="statusCaseText">Case #ID</p>
+            <label style="font-size: 0.8rem; font-weight: 700;">New Status</label>
+            <select id="newStatus">
+                <option value="pending">Pending</option>
+                <option value="progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="false-alarm">False Alarm</option>
+            </select>
+            <label style="font-size: 0.8rem; font-weight: 700;">Resolution Log</label>
+            <textarea id="statusLog" placeholder="Describe actions taken or reason for status change..."></textarea>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-status" style="flex: 1;" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-assign" style="flex: 1;" id="confirmStatusBtn">Save Update</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            query,
+            orderBy,
+            doc,
+            updateDoc,
+            getDocs,
+            where
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        import {
+            getAuth,
+            signInAnonymously,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+        };
+        const APP_ID = "canineguard-8abb8";
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        // TEMP: ensure authenticated session
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                signInAnonymously(auth);
+            }
+        });
+        // State Management
+        let allIncidents = [];
+        let activeDocId = null;
+        let allVolunteers = [];
+        function mapStatusForUI(status) {
+            if (!status || status === "open") return "pending";
+            if (status === "assigned") return "progress";
+            return status;
+        }
+
+
+        /**
+         * 1. Real-time Listener for Incidents
+         */
+        function startIncidentListener() {
+            const q = query(collection(db, "incidents"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                allIncidents = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderIncidents();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                document.getElementById('incidentList').innerHTML = `<div style="color:red; text-align:center;">Failed to sync with database.</div>`;
+            });
+        }
+
+        async function loadAvailableVolunteers() {
+            allVolunteers = [];
+    const volSelect = document.getElementById('volunteerName');
+    volSelect.innerHTML = `<option value="">Choose a responder...</option>`;
+
+    try {
+        const q = query(
+            collection(db, "artifacts", APP_ID, "public", "data", "volunteers"),
+            where("status", "==", "available")
+        );
+
+
+
+        const snapshot = await getDocs(q);
+
+        snapshot.forEach(docSnap => {
+            const v = docSnap.data();
+            allVolunteers.push({
+                id: docSnap.id,
+                ...v
+            });
+
+            const option = document.createElement("option");
+            option.value = docSnap.id;           // 👈 IMPORTANT
+            option.textContent = v.name;
+            volSelect.appendChild(option);
+        });
+
+    } catch (e) {
+        console.error("Failed to load volunteers", e);
+    }
+}
+
+        /**
+         * 2. Render Incident Cards with Filtering
+         */
+        function renderIncidents() {
+            const listEl = document.getElementById('incidentList');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const severityFilter = document.getElementById('severityFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            // Apply logic-based filtering in memory
+            const filtered = allIncidents.filter(inc => {
+                const matchesSearch = (inc.id.toLowerCase().includes(searchQuery)) || 
+                                     (inc.area?.toLowerCase().includes(searchQuery)) ||
+                                     (inc.description?.toLowerCase().includes(searchQuery));
+                const matchesSeverity = severityFilter === "" || (inc.severity || "minor") === severityFilter;
+                const uiStatus = mapStatusForUI(inc.status);
+                const matchesStatus = statusFilter === "" || uiStatus === statusFilter;
+
+                
+                return matchesSearch && matchesSeverity && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--text-light);">No incidents match your current filters.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(inc => {
+                const date = inc.createdAt?.toDate() ? inc.createdAt.toDate().toLocaleString() : "Just now";
+                const uiStatus = mapStatusForUI(inc.status);
+                const statusLabel = uiStatus.replace("-", " ");
+
+                const volunteer = inc.assignedTo && inc.volunteerName
+                ? `<strong>Responder:</strong> ${inc.volunteerName}`
+                : "<em>Awaiting responder...</em>";
+
+
+                return `
+                    <div class="incident-card ${inc.severity}-sev">
+                        <div class="case-id">#${inc.id.substring(0, 8)}</div>
+                        <div class="incident-details">
+                            <h4>${inc.area || "Unknown Location"}</h4>
+                            <p>${inc.description || "No additional details provided."}</p>
+                            <p style="margin-top:0.5rem; font-size:0.75rem;">${date} • ${volunteer}</p>
+                        </div>
+                        <div>
+                        <span class="badge badge-${uiStatus}">
+                            ${statusLabel}
+                        </span>
+                    </div>
+
+                        <div class="action-btns">
+                            <button class="btn btn-assign" onclick="window.openAssignModal('${inc.id}')">
+                                ${inc.volunteerName ? 'Reassign' : 'Assign'}
+                            </button>
+                            <button class="btn btn-status" onclick="window.openStatusModal('${inc.id}')">Update Status</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        /**
+         * 3. Modal & Interaction Logic
+         */
+        window.openAssignModal = async (docId) => {
+            activeDocId = docId;
+            document.getElementById('assignCaseText').innerText =
+                `Dispatching Mission for Case #${docId.substring(0,8)}`;
+
+            await loadAvailableVolunteers(); // 👈 REAL DATA HERE
+            document.getElementById('assignModal').style.display = 'flex';
+        };
+
+
+        window.openStatusModal = (docId) => {
+            activeDocId = docId;
+            const inc = allIncidents.find(i => i.id === docId);
+            document.getElementById('statusCaseText').innerText = `Updating Mission Status for Case #${docId.substring(0,8)}`;
+            document.getElementById('newStatus').value = mapStatusForUI(inc.status);
+            document.getElementById('statusModal').style.display = 'flex';
+        };
+
+        window.closeModals = () => {
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            activeDocId = null;
+        };
+
+        // Firestore Update Functions
+        document.getElementById('confirmAssignBtn').onclick = async () => {
+            const volunteerId = document.getElementById('volunteerName').value;
+            if (!volunteerId) return alert("Select a volunteer first.");
+
+            const volunteer = allVolunteers.find(v => v.id === volunteerId);
+
+            
+            try {
+                const docRef = doc(db, "incidents", activeDocId);
+                await updateDoc(docRef, {
+                    assignedTo: volunteerId,          // ✅ REAL FIELD
+                    volunteerName: volunteer.name,    // optional, UI only
+                    status: 'assigned',
+                    instructions: document.getElementById('assignInstructions').value
+                });
+
+                await updateDoc(
+                    doc(db, "artifacts", APP_ID, "public", "data", "volunteers", volunteerId),
+                    { status: "busy" }
+                );
+
+
+
+                window.closeModals();
+            } catch (e) { alert("Update failed: " + e.message); }
+        };
+
+        document.getElementById('confirmStatusBtn').onclick = async () => {
+            try {
+                const docRef = doc(db, "incidents", activeDocId);
+                await updateDoc(docRef, {
+                    status:
+                        document.getElementById('newStatus').value === "progress"
+                            ? "assigned"
+                            : document.getElementById('newStatus').value,
+
+                    resolutionLog: document.getElementById('statusLog').value
+                });
+                window.closeModals();
+            } catch (e) { alert("Update failed: " + e.message); }
+        };
+
+        // UI Event Listeners
+        document.getElementById('searchInput').oninput = renderIncidents;
+        document.getElementById('severityFilter').onchange = renderIncidents;
+        document.getElementById('statusFilter').onchange = renderIncidents;
+        window.onclick = (e) => { if(e.target.className === 'modal-overlay') window.closeModals(); };
+
+        // Start
+        startIncidentListener();
+
+    </script>
+    <script type="module" src="auth-guard.js"></script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Management Dashboard | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-links-wrapper { display: flex; align-items: center; }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover, .nav-link.active { 
+            color: var(--primary); 
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        /* Dashboard Content */
+        .dashboard-main { padding: 2rem 0; }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
+        .page-header p { color: var(--text-light); }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card.high-risk { border-top-color: var(--danger); }
+        .stat-card.pending { border-top-color: var(--warning); }
+        .stat-card.resolved { border-top-color: var(--success); }
+
+        .stat-label { font-size: 0.85rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
+        .stat-value { font-size: 2.2rem; font-weight: 800; display: block; margin-top: 0.5rem; color: var(--primary-dark); }
+
+        /* Module Grid */
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .module-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .module-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border: 1px solid var(--accent); }
+        .module-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .btn-module { padding: 0.6rem 1rem; background: #eff6ff; color: var(--primary); border-radius: 0.5rem; font-weight: 700; text-align: center; }
+
+        /* Table */
+        .table-card { background: var(--white); border-radius: 1rem; box-shadow: var(--shadow); overflow: hidden; }
+        .table-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 1rem 1.5rem; font-size: 0.75rem; color: var(--text-light); border-bottom: 1px solid var(--border); text-align: left; }
+        td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 700; }
+        .badge-pending { background: #fff7ed; color: #9a3412; }
+        .badge-progress { background: #eff6ff; color: #1e40af; }
+        .badge-resolved { background: #f0fdf4; color: #166534; }
+        
+        .severity-high { color: var(--danger); font-weight: 700; }
+        .severity-moderate { color: var(--warning); font-weight: 700; }
+        .severity-minor { color: var(--success); font-weight: 700; }
+
+        .btn-action { padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--border); background: white; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            .table-responsive table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { border: 1px solid var(--border); margin-bottom: 1rem; padding: 0.5rem; border-radius: 0.5rem; }
+            td { border: none; position: relative; padding-left: 50%; text-align: right; }
+            td:before { position: absolute; left: 1rem; width: 45%; text-align: left; font-weight: 700; content: attr(data-label); }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="ngo-dashboard.html" class="nav-link active">Dashboard</a>
+                <a href="volunteers.html" class="nav-link">Volunteers</a>
+                <button id="logoutBtn" class="nav-link" style="background:none;border:none;cursor:pointer;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container dashboard-main">
+        <header class="page-header">
+            <div>
+                <h1>NGO Management Dashboard</h1>
+                <p>Welcome back, NGO Admin. Real-time operation overview.</p>
+            </div>
+            <button class="btn-module" style="background: var(--primary); color: white;">Export Data</button>
+        </header>
+
+        <!-- Stats Overview -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Incidents</span>
+                <span id="stat-total" class="stat-value">...</span>
+            </div>
+            <div class="stat-card high-risk">
+                <span class="stat-label">High Risk Reports</span>
+                <span id="stat-high" class="stat-value">...</span>
+            </div>
+            <div class="stat-card pending">
+                <span class="stat-label">Pending Cases</span>
+                <span id="stat-pending" class="stat-value">...</span>
+            </div>
+            <div class="stat-card resolved">
+                <span class="stat-label">Resolved Cases</span>
+                <span id="stat-resolved" class="stat-value">...</span>
+            </div>
+        </section>
+
+        <h2 style="margin-bottom: 1.5rem; color: var(--primary-dark); font-weight: 800;">Operational Modules</h2>
+        
+        <section class="module-grid">
+            <a href="ngo-incidents.html" class="module-card">
+                <div>
+                    <div class="module-icon">🚨</div>
+                    <h3>Incident Response</h3>
+                    <p>Manage active bite reports and victim details.</p>
+                </div>
+                <span class="btn-module">Manage Incidents →</span>
+            </a>
+            <a href="volunteers.html" class="module-card">
+                <div>
+                    <div class="module-icon">🤝</div>
+                    <h3>Volunteer Coordination</h3>
+                    <p>Track field responders and assign tasks.</p>
+                </div>
+                <span class="btn-module">Manage Teams →</span>
+            </a>
+            <a href="drives.html" class="module-card">
+                <div>
+                    <div class="module-icon">💉</div>
+                    <h3>Vaccination Drives</h3>
+                    <p>Plan AI-Assisted vaccination and sterilization programs.</p>
+                </div>
+                <span class="btn-module">Plan New Drive →</span>
+            </a>
+        </section>
+
+        <!-- Recent Activity Table -->
+        <section class="table-card">
+            <div class="table-header">
+                <div class="table-title">Recent Incident Log</div>
+                <a href="ngo-incidents.html" style="font-size: 0.85rem; color: var(--primary); font-weight: 700; text-decoration: none;">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Area</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incident-rows">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:2rem; color:var(--text-light);">Loading latest data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        // 1. Firebase Imports
+        import { db } from "./firebase-init.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            orderBy, 
+            limit, 
+            getDocs ,
+            updateDoc,
+            doc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // 2. Firebase Configuration (Replace with your actual config)
+      
+
+        // 3. Initialization
+       
+
+      
+
+        /**
+         * Logic: Load all incidents to calculate dashboard stats
+         * Note: For larger apps, use Firestore Aggregation queries or Cloud Functions.
+         */
+        async function fetchDashboardStats() {
+            try {
+                const snapshot = await getDocs(collection(db, "incidents"));
+                const incidents = snapshot.docs.map(doc => doc.data());
+
+                const stats = {
+                    total: incidents.length,
+                    high: incidents.filter(i => i.severity === 'severe').length,
+                    pending: incidents.filter(i => i.status === 'pending').length,
+                    resolved: incidents.filter(i => i.status === 'resolved').length
+                };
+
+                document.getElementById('stat-total').innerText = stats.total.toLocaleString();
+                document.getElementById('stat-high').innerText = stats.high.toLocaleString();
+                document.getElementById('stat-pending').innerText = stats.pending.toLocaleString();
+                document.getElementById('stat-resolved').innerText = stats.resolved.toLocaleString();
+            } catch (err) {
+                console.error("Stats Error:", err);
+            }
+        }
+
+
+        /**
+         * Logic: Fetch 10 most recent incidents for the table
+         */
+        async function fetchRecentIncidents() {
+            const tbody = document.getElementById("incident-rows");
+            
+            try {
+                // Fetch query: Ordered by creation time, limited to 10
+                const q = query(
+                    collection(db, "incidents"), 
+                    orderBy("createdAt", "desc"), 
+                    limit(10)
+                );
+                
+                const querySnapshot = await getDocs(q);
+                tbody.innerHTML = "";
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem;">No incidents found.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = document.createElement("tr");
+                    
+                    // Format Date
+                    const date = data.createdAt?.toDate() 
+                        ? data.createdAt.toDate().toLocaleDateString() 
+                        : "N/A";
+
+                    row.innerHTML = `
+                        <td data-label="Reference"><strong>#${data.referenceId || doc.id.substring(0,6)}</strong></td>
+                        <td data-label="Area">${data.area || "Unknown Area"}</td>
+                        <td data-label="Severity"><span class="severity-${data.severity}">${data.severity?.toUpperCase() || 'LOW'}</span></td>
+                        <td data-label="Status"><span class="badge badge-${data.status || 'pending'}">${(data.status || 'pending').replace('_', ' ')}</span></td>
+                        <td data-label="Date">${date}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (err) {
+                console.error("Table Error:", err);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:2rem;">Error loading data.</td></tr>`;
+            }
+        }
+
+        // Export all incidents as CSV
+async function exportDataCSV() {
+    try {
+        const snapshot = await getDocs(collection(db, "incidents"));
+        const incidents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        if (incidents.length === 0) {
+            alert("No incidents available to export.");
+            return;
+        }
+
+        // Build CSV
+        const headers = ["Reference", "Area", "Severity", "Status", "Created At"];
+        const rows = incidents.map(i => [
+            i.referenceId || i.id.substring(0,6),
+            i.area || "Unknown",
+            i.severity || "LOW",
+            i.status || "pending",
+            i.createdAt?.toDate ? i.createdAt.toDate().toLocaleString() : "N/A"
+        ]);
+
+        const csvContent = [
+            headers.join(","), // Header row
+            ...rows.map(r => r.map(v => `"${v}"`).join(",")) // Escape quotes
+        ].join("\n");
+
+        // Create Blob & download
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "incidents_export.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error("Export Error:", err);
+        alert("Failed to export incidents. Check console for details.");
+    }
+}
+
+// Attach to button
+document.querySelector(".page-header .btn-module").addEventListener("click", exportDataCSV);
+
+
+        // Initialize page data
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchDashboardStats();
+            fetchRecentIncidents();
+        });
+    </script>
+    <script type="module">
+        import { auth } from "./firebase-init.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+
+    // Reuse existing Firebase app if already initialized
+    
+
+    document.getElementById("logoutBtn")?.addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+            window.location.href = "index.html";
+        } catch (err) {
+            console.error("Logout failed:", err);
+            alert("Logout failed. Try again.");
+        }
+    });
+</script>
+
+
+    <script type="module" src="auth-guard.js"></script>
+</body>
+</html>

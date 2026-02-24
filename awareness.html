@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awareness Hub | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            white-space: nowrap;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #ea580c; }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 0; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .logo { font-size: 1.25rem; }
+        }
+
+        @media (max-width: 480px) {
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+            .nav-btn { padding: 0.4rem 0.6rem; font-size: 0.75rem; margin-left: 0.1rem; }
+            .logo { font-size: 1.1rem; }
+            .container { padding: 0 0.5rem; }
+        }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 1rem; }
+        .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 700px; margin: 0 auto; }
+
+        /* Sections */
+        .section { padding: 4rem 0; }
+        .section-title { text-align: center; margin-bottom: 3rem; padding: 0 1rem; }
+        .section-title h2 { font-size: 2rem; color: var(--primary-dark); margin-bottom: 0.5rem; }
+
+        /* Grid Layouts */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+
+        /* Card Styles */
+        .card { background: var(--white); padding: 2.5rem; border-radius: 1.25rem; box-shadow: var(--shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .card-icon { font-size: 2.5rem; margin-bottom: 1.5rem; display: block; }
+        .card h3 { margin-bottom: 1rem; color: var(--primary-dark); }
+        .card p { color: var(--text-light); font-size: 0.95rem; }
+
+        /* First Aid Steps */
+        .first-aid-step { display: flex; gap: 1.5rem; background: var(--white); padding: 2rem; border-radius: 1rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); align-items: center; transition: transform 0.2s ease; }
+        .first-aid-step:hover { transform: scale(1.01); }
+        .step-number { background: var(--secondary); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; font-size: 1.2rem; }
+
+        /* Drives List */
+        .drive-list { background: var(--white); border-radius: 1rem; overflow: hidden; box-shadow: var(--shadow); }
+        .drive-item { padding: 1.5rem 2rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .drive-item:last-child { border-bottom: none; }
+        .drive-info h4 { color: var(--primary-dark); margin-bottom: 0.25rem; }
+        .drive-status { padding: 0.4rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 700; background: #dcfce7; color: #166534; }
+
+        /* Emergency Section */
+        .emergency-box { background: #fef2f2; border: 2px dashed var(--danger); padding: 3rem 1.5rem; border-radius: 1.5rem; text-align: center; }
+        .emergency-box h3 { color: var(--danger); margin-bottom: 1rem; font-size: 1.5rem; }
+        .emergency-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .contact-item span { font-size: 0.9rem; color: var(--text-light); display: block; }
+        .contact-item b { display: block; font-size: 1.25rem; color: var(--text-dark); margin-top: 0.5rem; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal { background: white; padding: 2.5rem; border-radius: 1rem; max-width: 450px; width: 90%; text-align: center; box-shadow: var(--shadow-lg); }
+        .modal h3 { margin-bottom: 1rem; color: var(--primary-dark); }
+        .modal input { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; text-align: center; }
+        .modal .modal-btns { display: flex; gap: 0.75rem; }
+        .modal button { flex: 1; cursor: pointer; border: none; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 700; }
+        .modal .btn-confirm { background: var(--primary); color: white; }
+        .modal .btn-confirm:disabled { background: #94a3b8; }
+        .modal .btn-close { background: #e5e7eb; color: var(--text-dark); }
+
+        footer { background: #111827; color: #9ca3af; padding: 3rem 0; text-align: center; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="awareness.html" class="nav-link active">Awareness Hub</a>
+                <a href="ngo-login.html" class="nav-link">NGO Portal</a>
+                <a href="#" class="nav-btn" id="navSupportBtn">Support Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Public Safety & Prevention Hub</h1>
+            <p>Empowering the community with knowledge to reduce human-animal conflicts and manage stray dog encounters effectively.</p>
+        </div>
+    </header>
+
+    <!-- Preventive Tips -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Safety Interaction Tips</h2>
+                <p>Crucial guidelines for safe interaction with stray dogs in your neighborhood.</p>
+            </div>
+            <div class="grid">
+                <article class="card">
+                    <span class="card-icon">✋</span>
+                    <h3>The "Tree" Technique</h3>
+                    <p>If an aggressive dog approaches, stand still, keep hands at your sides, and look at your feet. Most dogs will lose interest if you don't react.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🚫</span>
+                    <h3>No Direct Eye Contact</h3>
+                    <p>Stray dogs often view direct eye contact as a challenge or threat. Avert your gaze slightly to appear non-threatening.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🎒</span>
+                    <h3>Barrier Strategy</h3>
+                    <p>If a dog lunges, use any available object (bag, umbrella, or jacket) as a shield to protect your torso and limbs.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- First Aid -->
+    <section class="section" style="background: var(--white);">
+        <div class="container">
+            <div class="section-title">
+                <h2>First Aid: Post-Bite Protocol</h2>
+                <p>Take these immediate actions if you or someone else is bitten or scratched.</p>
+            </div>
+            <div style="max-width: 850px; margin: 0 auto;">
+                <div class="first-aid-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h4>Wash the Wound</h4>
+                        <p>Immediately wash the area with soap and running water for at least 15 minutes. This is the most effective way to reduce rabies risk.</p>
+                    </div>
+                </div>
+                <div class="first-aid-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h4>Apply Antiseptic</h4>
+                        <p>After washing, apply an antiseptic to the wound. Do not cover with a tight bandage.</p>
+                    </div>
+                </div>
+                <div class="first-aid-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h4>Urgent Medical Consultation</h4>
+                        <p>Go to a doctor immediately for Post-Exposure Prophylaxis (PEP) vaccinations. Never wait for symptoms to appear.</p>
+                    </div>
+                </div>
+                <!-- 4th Point: Restored as requested -->
+                <div class="first-aid-step" style="border-left: 4px solid var(--accent);">
+                    <div class="step-number" style="background: var(--accent);">4</div>
+                    <div>
+                        <h4>Log Incident Report</h4>
+                        <p>Use our <a href="report.html" style="color:var(--primary); font-weight:700;">Reporting Tool</a> so local NGOs can track the animal and map the risk zone.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Drives -->
+    <section class="section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Upcoming Prevention Drives</h2>
+                <p>Join or support sterilization and vaccination programs in your district.</p>
+            </div>
+            <div class="drive-list" id="driveContainer">
+                <div class="drive-item">
+                    <div class="drive-info">
+                        <h4>Mass Anti-Rabies Vaccination Camp</h4>
+                        <p>Location: City Central Plaza • Oct 28, 2024</p>
+                    </div>
+                    <span class="drive-status">Confirmed</span>
+                </div>
+                <div class="drive-item">
+                    <div class="drive-info">
+                        <h4>Sterilization (ABC) Mobile Unit</h4>
+                        <p>Location: North Suburbs Lane 4 • Oct 30, 2024</p>
+                    </div>
+                    <span class="drive-status">In Progress</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Contacts -->
+    <section class="section">
+        <div class="container">
+            <div class="emergency-box">
+                <h3>🆘 Emergency Response Numbers</h3>
+                <p>Save these contacts for immediate assistance with aggressive strays or injuries.</p>
+                <div class="emergency-grid">
+                    <div class="contact-item"><span>Rescue Unit</span><b>1-800-STR-HELP</b></div>
+                    <div class="contact-item"><span>Rabies Hotline</span><b>011-4455-2233</b></div>
+                    <div class="contact-item"><span>NGO Dispatch</span><b>+91 98765 43210</b></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NGO Portal Modal -->
+    <div id="msgModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modalTitle">Notice</h3>
+            <p id="modalMsg"></p>
+            <div id="loginField" style="display: none;">
+                <input type="password" id="accessKey" placeholder="Enter NGO Access Key">
+            </div>
+            <div class="modal-btns">
+                <button id="modalBtnConfirm" class="btn-confirm">Understood</button>
+                <button id="modalBtnClose" class="btn-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CanineGuard Monitoring Systems. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'canineguard-8abb8';
+
+        /**
+         * 1. NGO Authentication Logic
+         */
+        window.showNGOLogin = function() {
+            if (auth.currentUser && !auth.currentUser.isAnonymous) {
+                window.location.href = "ngo-dashboard.html";
+                return;
+            }
+
+            const modal = document.getElementById('msgModal');
+            document.getElementById('modalTitle').innerText = "Authorized NGO Access";
+            document.getElementById('modalMsg').innerText = "Enter your secure access key to enter the administrative portal.";
+            document.getElementById('loginField').style.display = 'block';
+            document.getElementById('modalBtnClose').style.display = 'block';
+            
+            const confirmBtn = document.getElementById('modalBtnConfirm');
+            confirmBtn.innerText = "Validate Key";
+            
+            confirmBtn.onclick = async () => {
+                const key = document.getElementById('accessKey').value;
+                if (!key) return alert("Please enter your key.");
+
+                confirmBtn.disabled = true;
+                confirmBtn.innerText = "Verifying...";
+
+                try {
+                    // Logic: NGO Key is used as the password for the primary admin account
+                    await signInWithEmailAndPassword(auth, "admin@canineguard.org", key);
+                    window.location.href = "ngo-dashboard.html";
+                } catch (e) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerText = "Validate Key";
+                    alert("Invalid NGO credentials.");
+                }
+            };
+            modal.style.display = 'flex';
+        };
+
+        /**
+         * 2. Load Real-time Drives from Firestore
+         */
+        async function loadDrives() {
+            try {
+                // Rule 3: Auth Before Queries
+                if (!auth.currentUser) await signInAnonymously(auth);
+
+                // Rule 1: Strict Path Structure
+                const driveCol = collection(db, 'artifacts', appId, 'public', 'data', 'drives');
+                const snap = await getDocs(driveCol);
+                
+                if (!snap.empty) {
+                    const container = document.getElementById('driveContainer');
+                    container.innerHTML = ''; // Clear fallback data
+
+                    snap.forEach(doc => {
+                        const data = doc.data();
+                        const item = document.createElement('div');
+                        item.className = 'drive-item';
+                        item.innerHTML = `
+                            <div class="drive-info">
+                                <h4>${data.title}</h4>
+                                <p>Location: ${data.location} • ${data.date}</p>
+                            </div>
+                            <span class="drive-status" style="${data.status === 'Open' ? 'background:#e0f2fe; color:#0369a1;' : ''}">${data.status}</span>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+            } catch (e) { console.error("Drive load error:", e); }
+        }
+
+        /**
+         * UI Helper Functions
+         */
+        window.showMessage = (title, text) => {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = text;
+            document.getElementById('loginField').style.display = 'none';
+            document.getElementById('modalBtnClose').style.display = 'none';
+            document.getElementById('modalBtnConfirm').innerText = "Understood";
+            document.getElementById('modalBtnConfirm').onclick = window.closeModal;
+            document.getElementById('msgModal').style.display = 'flex';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('msgModal').style.display = 'none';
+            document.getElementById('accessKey').value = '';
+        };
+
+        // Attach static events
+        document.getElementById('navNGOLink').onclick = window.showNGOLogin;
+        document.getElementById('navSupportBtn').onclick = () => window.showMessage('Notice', 'Thank you for your interest in supporting our NGO. A secure payment gateway will open shortly.');
+        document.getElementById('modalBtnClose').onclick = window.closeModal;
+        window.onclick = (e) => { if (e.target.id === 'msgModal') window.closeModal(); };
+
+        // Start
+        loadDrives();
+    </script>
+</body>
+</html>

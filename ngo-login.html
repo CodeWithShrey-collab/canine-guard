@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Login | CanineGuard</title>
+    <style>
+        /* Base Styles & Variables - Synced with CanineGuard Design System */
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        nav {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Login Section */
+        .login-main {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .login-card h2 {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+        }
+
+        .login-card p {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover { background-color: var(--primary-dark); }
+        .btn-login:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        footer {
+            background: #111827;
+            color: #9ca3af;
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <a href="index.html" class="nav-link">← Back to Site</a>
+        </div>
+    </nav>
+
+    <main class="login-main">
+        <div class="login-card">
+            <h2>NGO Portal</h2>
+            <p>Enter your credentials to access the management dashboard.</p>
+
+            <div id="errorBox" class="error-msg"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="admin@ngo.org" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="submitBtn" class="btn-login">Sign In</button>
+            </form>
+            
+            <p style="margin-top: 1.5rem; font-size: 0.85rem;">
+                Forgot password? Contact system administrator.
+            </p>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container" style="justify-content: center;">
+            &copy; 2024 CanineGuard Monitoring Systems. Secure NGO Access.
+        </div>
+    </footer>
+
+    <script type="module">
+        // 1. Firebase Modular SDK Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // 2. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e",
+            measurementId: "G-PBG2QXC58Y"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginForm = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorBox = document.getElementById('errorBox');
+
+        // 3. Route Guard: If user is already logged in, send them to the dashboard
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Pre-check role (Placeholder for role-based access logic)
+                // In a production environment, you would check Firestore here
+                // const userDoc = await getDoc(doc(db, "users", user.uid));
+                // if (userDoc.exists() && userDoc.data().role === 'ngo') { ... }
+                
+                window.location.href = 'ngo-dashboard.html';
+            }
+        });
+
+        // 4. Handle Login Submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Reset UI
+            errorBox.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Authenticating...';
+
+            try {
+                // Firebase Auth Sign In
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Preparation for Role-Based Access:
+                // You can add a check here to verify the user's role in Firestore 
+                // before allowing the final redirect.
+                
+                window.location.href = 'ngo-dashboard.html';
+
+            } catch (error) {
+                console.error("Login Error:", error.code);
+                errorBox.style.display = 'block';
+                
+                // Friendly error messaging
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        errorBox.innerText = "Invalid email or password. Please try again.";
+                        break;
+                    case 'auth/too-many-requests':
+                        errorBox.innerText = "Too many failed attempts. Please try again later.";
+                        break;
+                    default:
+                        errorBox.innerText = "An error occurred during login. Please try again.";
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>

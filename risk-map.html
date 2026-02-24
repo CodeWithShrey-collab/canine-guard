@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Zone Map | CanineGuard</title>
+    <!-- Leaflet CSS for Map Styling -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --low-risk: #10b981;
+            --medium-risk: #f59e0b;
+            --high-risk: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            white-space: nowrap;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 0; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .logo { font-size: 1.25rem; }
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+        }
+
+        /* Dashboard Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .map-section {
+            background: var(--white);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .map-section:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 500px;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            z-index: 1; /* Ensure leaflet stays below nav */
+        }
+
+        /* Sidebar Panels */
+        .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+
+        .panel-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0; }
+
+        .ai-insight {
+            background: #f0f9ff;
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .ai-insight p { font-size: 0.85rem; color: #0369a1; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .stat-box { background: var(--bg-light); padding: 1rem; border-radius: 0.75rem; text-align: center; }
+        .stat-value { display: block; font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link active">Risk Map</a>
+                <a href="awareness.html" class="nav-link">Awareness Hub</a>
+                <a href="ngo-dashboard.html" class="nav-link">NGO Portal</a>
+                <a href="#" class="nav-btn" onclick="showMessage('Notice', 'Thank you for your interest in supporting our NGO.')">Support Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header style="margin-top: 2.5rem;">
+            <h1 style="font-size: 2.25rem; color: var(--primary-dark);">Risk Zone Map</h1>
+            <p style="color: var(--text-light);">Real-time AI visualization of stray dog activity and incident hotspots.</p>
+        </header>
+
+        <main class="dashboard-grid">
+            <section class="map-section">
+                <div class="map-header">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button id="liveFeedBtn" class="nav-btn" style="margin: 0; padding: 0.4rem 0.8rem; font-size: 0.8rem;">Refresh Data</button>
+                        <select id="timeFilter" style="background: white; border: 1px solid #d1d5db; padding: 0.4rem 0.8rem; font-weight: 500; border-radius: 0.5rem; cursor: pointer;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="30">Last 30 Days</option>
+                        </select>
+                    </div>
+                    <div id="lastUpdate" style="font-size: 0.8rem; color: var(--text-light);">
+                        Last analyzed: Just now
+                    </div>
+                </div>
+
+                <!-- Leaflet Map Container -->
+                <div id="map" class="map-placeholder"></div>
+            </section>
+
+            <aside class="sidebar">
+                <div class="panel-card">
+                    <h2 class="panel-title">Risk Legend</h2>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--high-risk);"></div>
+                        <span id="legendHigh">High: 3+ weight sum in area</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--medium-risk);"></div>
+                        <span id="legendMed">Medium: Active reports</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: var(--low-risk);"></div>
+                        <span id="legendLow">Low: Minimal activity</span>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <h2 class="panel-title"><span>🧠</span> AI Prediction</h2>
+                    <div class="ai-insight">
+                        <p id="predictionText">Analyzing data patterns for potential hotspots...</p>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <h2 class="panel-title">Safety Stats</h2>
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <span id="hotspotCount" class="stat-value">0</span>
+                            <span class="stat-label">Total Incidents</span>
+                        </div>
+                        <div class="stat-box">
+                            <span id="avgRisk" class="stat-value">Low</span>
+                            <span class="stat-label">Zone Risk</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="msgModal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modalTitle">Notice</h3>
+            <p id="modalMsg"></p>
+            <div id="loginField" style="display: none;"><input type="password" id="accessKey" placeholder="Enter NGO Access Key"></div>
+            <div class="modal-btns">
+                <button id="modalBtnConfirm" class="btn-confirm">Understood</button>
+                <button id="modalBtnClose" class="btn-close" onclick="closeModal()" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+    <!-- Firebase & Logic Module -->
+    <script type="module">
+        let heatLayer;
+
+        import { db } from "./firebase-init.js";
+        import { collection, query, where, getDocs, Timestamp, limit } 
+        from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+
+        // Map Initialization
+        // Map Initialization
+        let map;
+        let incidentLayers = L.layerGroup();
+
+        function initMap() {
+            // Temporary default center (will auto-adjust)
+            map = L.map('map').setView([21.1458, 79.0882], 13); // Nagpur approx center
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            heatLayer = L.heatLayer([], {
+                radius: 30,
+                blur: 25,
+                maxZoom: 17,
+                gradient: {
+                    0.2: '#10b981',   // low
+                    0.5: '#f59e0b',   // medium
+                    0.8: '#ef4444'    // high
+                }
+            }).addTo(map);
+
+            incidentLayers.addTo(map);
+        }
+
+
+        // Logic: Risk Weighting
+        const SEVERITY_WEIGHTS = {
+            'minor': 1,
+            'moderate': 2,
+            'severe': 3
+        };
+
+        const SEVERITY_COLORS = {
+            'minor': '#10b981',    // Low Risk
+            'moderate': '#f59e0b', // Med Risk
+            'severe': '#ef4444'    // High Risk
+        };
+    
+        let displayedIncidents = new Set(); // Keep track of incidents already shown
+
+    async function fetchAndPlotIncidents() {
+    const days = parseInt(document.getElementById('timeFilter').value);
+    const timeLimit = new Date();
+    timeLimit.setDate(timeLimit.getDate() - days);
+    const firestoreTimestamp = Timestamp.fromDate(timeLimit);
+
+    // Clear existing markers
+    incidentLayers.clearLayers();
+    let heatPoints = [];
+
+    try {
+        const q = query(
+            collection(db, "incidents"),
+            where("status", "in", ["open", "assigned"]),
+            limit(500)
+        );
+
+
+        const querySnapshot = await getDocs(q);
+        let totalWeight = 0;
+        let incidentCount = 0;
+
+        querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    const lat = data.latitude;
+    const lng = data.longitude;
+
+    if (lat && lng) {
+        incidentCount++;
+        const weight = SEVERITY_WEIGHTS[data.severity] || 1;
+        totalWeight += weight;
+        const intensity = SEVERITY_WEIGHTS[data.severity] || 1;
+        heatPoints.push([lat, lng, intensity]);
+
+        const finalRadius = 150 + (weight * 50);
+
+        // Create circle starting with radius 0
+        const circle = L.circle([lat, lng], {
+            color: SEVERITY_COLORS[data.severity],
+            fillColor: SEVERITY_COLORS[data.severity],
+            fillOpacity: 0.5,
+            radius: 0
+        }).addTo(incidentLayers);
+
+        circle.bindPopup(`
+            <strong>Severity:</strong> ${data.severity.toUpperCase()}<br>
+            <strong>Reported:</strong> ${data.createdAt.toDate().toLocaleDateString()}
+        `);
+
+        // Animate growth
+        let currentRadius = 0;
+        const growStep = finalRadius / 20; // 20 frames
+        const growInterval = setInterval(() => {
+            currentRadius += growStep;
+            if (currentRadius >= finalRadius) {
+                circle.setRadius(finalRadius);
+                clearInterval(growInterval);
+
+                // Pulse effect: shrink and grow once
+                let pulseStep = 10;
+                let shrinking = true;
+                let pulses = 0;
+                const pulseInterval = setInterval(() => {
+                    let r = circle.getRadius();
+                    if (shrinking) {
+                        r -= pulseStep;
+                        if (r <= finalRadius - 10) shrinking = false;
+                    } else {
+                        r += pulseStep;
+                        if (r >= finalRadius) {
+                            pulses++;
+                            if (pulses >= 1) {
+                                circle.setRadius(finalRadius);
+                                clearInterval(pulseInterval);
+                                return;
+                            }
+                            shrinking = true;
+                        }
+                    }
+                    circle.setRadius(r);
+                }, 50);
+            } else {
+                circle.setRadius(currentRadius);
+            }
+        }, 50);
+    }
+       let intensity = 0;
+                const targetIntensity = SEVERITY_WEIGHTS[data.severity] || 1;
+                const steps = 10;
+                const heatInterval = setInterval(() => {
+                    intensity += targetIntensity / steps;
+                    heatPoints.push([lat, lng, intensity]);
+                    heatLayer.setLatLngs(heatPoints);
+                    if (intensity >= targetIntensity) clearInterval(heatInterval);
+                }, 50);
+});
+
+
+        updateStats(incidentCount, totalWeight);
+
+        // Auto-center map
+        if (incidentCount > 0) {
+            const layersArray = incidentLayers.getLayers();
+            if (incidentCount === 1) {
+                map.setView(layersArray[0].getLatLng(), 16);
+            } else {
+                const bounds = L.latLngBounds(layersArray.map(l => l.getLatLng()));
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        } else {
+            map.setView([21.1458, 79.0882], 13); // Nagpur default
+        }
+
+        document.getElementById('lastUpdate').innerText = `Last analyzed: ${new Date().toLocaleTimeString()}`;
+    } catch (error) {
+        console.error("Error fetching incidents: ", error);
+    }
+}
+
+
+
+        function updateStats(count, totalWeight) {
+            document.getElementById('hotspotCount').innerText = count;
+            
+            // Basic Risk Classification Logic
+            const avgWeight = count > 0 ? totalWeight / count : 0;
+            let status = "Low";
+            let prediction = "Neighborhood activity appears stable. Continue routine monitoring.";
+
+            if (avgWeight > 2.2 || count > 10) {
+                status = "High";
+                prediction = "Warning: Multiple aggressive incidents detected. Recommend immediate municipal intervention in highlighted red zones.";
+            } else if (avgWeight > 1.5 || count > 5) {
+                status = "Medium";
+                prediction = "Caution: Moderate activity detected. Advise community vigilance and waste management checks.";
+            }
+
+            const riskEl = document.getElementById('avgRisk');
+            riskEl.innerText = status;
+            riskEl.style.color = status === "High" ? "var(--high-risk)" : (status === "Medium" ? "var(--medium-risk)" : "var(--low-risk)");
+            document.getElementById('predictionText').innerText = prediction;
+        }
+
+        // Global Event Listeners
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            fetchAndPlotIncidents();
+
+            document.getElementById('timeFilter').onchange = fetchAndPlotIncidents;
+            document.getElementById('liveFeedBtn').onclick = fetchAndPlotIncidents;
+        });
+
+        // Maintain existing modal logic for consistency
+        window.showMessage = function(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMsg').innerText = text;
+            document.getElementById('msgModal').style.display = 'flex';
+        };
+        window.closeModal = function() {
+            document.getElementById('msgModal').style.display = 'none';
+        };
+        document.getElementById('modalBtnConfirm').onclick = window.closeModal;
+    </script>
+</body>
+</html>

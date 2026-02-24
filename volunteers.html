@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Coordination | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation - Unified with all pages */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover { 
+            color: var(--primary); 
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+            white-space: nowrap;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: #ea580c; }
+
+        /* Responsive Navigation Logic */
+        @media (max-width: 850px) {
+            nav { padding: 1rem 0; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .logo { font-size: 1.25rem; }
+        }
+
+        @media (max-width: 480px) {
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+            .nav-btn { padding: 0.4rem 0.6rem; font-size: 0.75rem; margin-left: 0.1rem; }
+            .logo { font-size: 1.1rem; }
+            .container { padding: 0 0.5rem; }
+        }
+
+        /* Modal Overlay */
+        #registerModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #registerModal.active {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Modal Card */
+        #registerModal .modal-content {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: var(--shadow);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        #registerModal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        #registerModal h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            font-size: 1.5rem;
+        }
+
+        #registerModal form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        #registerModal input {
+            padding: 0.6rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+            outline-color: var(--primary);
+        }
+
+        #registerModal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        #registerModal .modal-actions button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #registerModal .modal-actions .cancel-btn {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+
+        #registerModal .modal-actions .cancel-btn:hover {
+            background: #e5e7eb;
+        }
+
+        #registerModal .modal-actions .submit-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        #registerModal .modal-actions .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-action.danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+        }
+
+        .btn-action.danger:hover {
+            background: #dc2626; /* darker red on hover */
+        }
+
+        /* Generic Professional Modal */
+        #genericModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #genericModal.active {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #genericModal .modal-content {
+            background: var(--white);
+            border-radius: 1rem;
+            padding: 2rem 2.5rem;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-30px);
+            transition: transform 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        #genericModal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        #genericModal h2 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        #genericModal p {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        #genericModal .modal-actions button {
+            padding: 0.55rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #genericModal .submit-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        #genericModal .submit-btn:hover { background-color: var(--primary-dark); }
+
+        #genericModal .cancel-btn {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+        #genericModal .cancel-btn:hover { background: #e5e7eb; }
+
+        #genericModal .modal-icon {
+            font-size: 2rem;
+        }
+
+
+
+        /* Page Layout */
+        .page-header { padding: 2rem 0; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; }
+        .page-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
+        .page-header p { color: var(--text-light); }
+
+        /* Stats Cards with Hover Effect */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--white); padding: 1.5rem; border-radius: 1rem; box-shadow: var(--shadow); border-left: 4px solid var(--primary); transition: all 0.3s ease; cursor: default; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-left-width: 6px; }
+        .stat-card.available { border-left-color: var(--success); }
+        .stat-card.busy { border-left-color: var(--warning); }
+        .stat-label { font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary-dark); display: block; margin-top: 0.25rem; }
+
+        /* Search/Filter Bar with Hover */
+        .search-bar { background: var(--white); padding: 1.25rem; border-radius: 1rem; box-shadow: var(--shadow); margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap; transition: all 0.3s ease; border: 1px solid transparent; }
+        .search-bar:hover { box-shadow: var(--shadow-hover); border-color: var(--accent); }
+        .search-input { flex: 1; min-width: 250px; padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.9rem; outline-color: var(--primary); }
+
+        /* Volunteer Grid */
+        .volunteer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; padding-bottom: 4rem; }
+        .volunteer-card { background: var(--white); border-radius: 1rem; box-shadow: var(--shadow); overflow: hidden; transition: all 0.3s ease; border: 1px solid transparent; }
+        .volunteer-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+
+        .v-header { padding: 1.5rem; display: flex; align-items: center; gap: 1rem; border-bottom: 1px solid var(--border); }
+        .v-avatar { width: 50px; height: 50px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: var(--text-light); }
+        .v-info h3 { font-size: 1.1rem; color: var(--primary-dark); }
+        .v-info p { font-size: 0.85rem; color: var(--text-light); }
+
+        .v-body { padding: 1.5rem; }
+        .v-meta { display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 0.9rem; }
+        .v-label { color: var(--text-light); font-weight: 600; }
+        .v-value { font-weight: 700; }
+
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .status-available { background: #f0fdf4; color: #166534; }
+        .status-busy { background: #fff7ed; color: #9a3412; }
+
+        .v-actions { padding: 1.25rem; background: #f8fafc; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; }
+        .btn-action { flex: 1; padding: 0.6rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: white; transition: all 0.2s; }
+        .btn-action.primary { background: var(--primary); color: white; border: none; }
+        .btn-action:hover { transform: scale(1.05); }
+        .btn-action.primary:hover { background: var(--primary-dark); }
+        .btn-action:not(.primary):hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+
+        @media (max-width: 640px) {
+            .page-header { text-align: center; justify-content: center; }
+            .volunteer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="ngo-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="volunteers.html" class="nav-link active">Volunteers</a>
+                <a href="#" class="nav-btn" onclick="alert('Support Access: Processing portal.')">Support Us</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <div>
+                <h1>Volunteer Coordination</h1>
+                <p>Manage field personnel, assign active missions, and track responder availability.</p>
+            </div>
+            <!-- Requirement: register button uses dummy data for now -->
+            <button id="registerBtn" class="nav-btn" style="margin: 0; padding: 0.75rem 1.5rem;">+ Register Volunteer</button>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Volunteers</span>
+                <span class="stat-value" id="total-volunteers">...</span>
+            </div>
+            <div class="stat-card available">
+                <span class="stat-label">Available Now</span>
+                <span class="stat-value" id="available-volunteers">...</span>
+            </div>
+            <div class="stat-card busy">
+                <span class="stat-label">On Active Mission</span>
+                <span class="stat-value" id="busy-volunteers">...</span>
+            </div>
+        </section>
+
+        <!-- Generic Modal -->
+<div id="genericModal">
+    <div class="modal-content">
+        <h2 id="genericTitle">Title</h2>
+        <p id="genericMessage">Message goes here.</p>
+        <div class="modal-actions" id="genericActions">
+            <!-- Buttons will be injected dynamically -->
+        </div>
+    </div>
+</div>
+
+        
+        <!-- Search bar -->
+        <section class="search-bar">
+            <input type="text" class="search-input" id="nameSearch" placeholder="Search by name, district, or skills...">
+            <select class="search-input" id="districtFilter" style="flex: 0 1 200px; background: white;">
+                <option value="All Districts">All Districts</option>
+                <option value="North District">North District</option>
+                <option value="Central Market">Central Market</option>
+                <option value="West Suburbs">West Suburbs</option>
+            </select>
+        </section>
+
+        <!-- Volunteer Grid - Populated by Firestore -->
+        <section class="volunteer-grid" id="volunteer-list">
+            <div style="text-align: center; grid-column: 1 / -1; padding: 3rem; color: var(--text-light);">
+                Connecting to Secure Responder Database...
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase Implementation -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot,
+            where, 
+            addDoc, 
+            serverTimestamp,
+            getDocs,
+            query,
+            doc,
+            deleteDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Global Variables provided by environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'canineguard-8abb8';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        function incidentsCollection() {
+            return collection(db, 'incidents');
+        }
+
+
+        const volunteerList = document.getElementById('volunteer-list');
+
+        /**
+         * 1. Mandatory Authentication Flow
+         */
+        // async function authenticate() {
+        //     try {
+        //         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+        //             await signInWithCustomToken(auth, __initial_auth_token);
+        //         } else {
+        //             await signInAnonymously(auth);
+        //         }
+        //     } catch (error) {
+        //         console.error("Authentication failed:", error);
+        //         volunteerList.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:3rem; color:var(--danger);">Authentication Error. Please refresh.</div>`;
+        //     }
+        // }
+
+        /**
+         * 2. Load Volunteers (Real-time)
+         * Following strict path rules
+         */
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+
+            if (user.isAnonymous) {
+                volunteerList.innerHTML = `
+                <div style="text-align:center; grid-column:1/-1; padding:3rem; color:red;">
+                    Access denied. Please log in as NGO admin.
+                </div>`;
+                return;
+            }
+            // RULE 1: Strict Paths
+            const volunteersCol = collection(db, 'artifacts', appId, 'public', 'data', 'volunteers');
+
+            // RULE 2: Fetch all (sorting/filtering in JS)
+            onSnapshot(volunteersCol, (snapshot) => {
+                const volunteers = [];
+                let availableCount = 0;
+                let busyCount = 0;
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    volunteers.push({ id: doc.id, ...data });
+                    
+                    if (data.status === 'available') availableCount++;
+                    if (data.status === 'busy') busyCount++;
+                });
+
+                
+                
+                // Manual sorting by createdAt desc (as per rule 2)
+                volunteers.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis() || 0;
+                    const timeB = b.createdAt?.toMillis() || 0;
+                    return timeB - timeA;
+                });
+
+                const openCasesQuery = query(
+               incidentsCollection(),
+
+                where('status', '==', 'open')
+            );
+
+            onSnapshot(openCasesQuery, (snapshot) => {
+                console.log("🟢 Open cases:", snapshot.size);
+                snapshot.forEach(doc => {
+                    console.log("Case:", doc.id, doc.data().area);
+                });
+            });
+
+                // Update Stats UI
+                document.getElementById('total-volunteers').innerText = snapshot.size;
+                document.getElementById('available-volunteers').innerText = availableCount;
+                document.getElementById('busy-volunteers').innerText = busyCount;
+
+                window.cachedVolunteers = volunteers; // For search/filter
+                renderVolunteers(volunteers);
+            }, (error) => {
+                console.error("Snapshot error:", error);
+                if (error.code === 'permission-denied') {
+                    volunteerList.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:3rem; color:var(--danger);">Missing or insufficient permissions. Check path: /artifacts/${appId}/public/data/volunteers</div>`;
+                }
+            });
+        });
+
+        /**
+         * 3. Render Logic
+         */
+        function renderVolunteers(volunteers) {
+            volunteerList.innerHTML = '';
+            
+            if (volunteers.length === 0) {
+                volunteerList.innerHTML = `<div style="text-align:center; grid-column:1/-1; padding:3rem; color:var(--text-light);">No responders registered yet. Click + Register Volunteer to start.</div>`;
+                return;
+            }
+
+            volunteers.forEach(v => {
+                const initials = v.name ? v.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
+                const statusClass = v.status === 'available' ? 'status-available' : 'status-busy';
+                const assignedCase = v.assignedCase ? `#${v.assignedCase}` : 'N/A';
+                const avatarStyle = v.status === 'available' ? 'background:#dcfce7; color:#166534;' : '';
+
+                const card = document.createElement('article');
+card.className = 'volunteer-card';
+card.innerHTML = `
+    <div class="v-header">
+        <div class="v-avatar" style="${avatarStyle}">${initials}</div>
+        <div class="v-info">
+            <h3>${v.name}</h3>
+            <p>${v.role || 'Volunteer'} • ${v.area || 'General'}</p>
+        </div>
+    </div>
+
+    <div class="v-body">
+        <div class="v-meta">
+            <span class="v-label">Current Status:</span>
+            <span class="status-badge ${statusClass}">
+                ${v.status || 'unknown'}
+            </span>
+        </div>
+
+        <div class="v-meta">
+            <span class="v-label">
+                ${v.status === 'available' ? 'Last Active:' : 'Assigned Case:'}
+            </span>
+            <span class="v-value" style="${v.status === 'busy' ? 'color: var(--primary);' : ''}">
+                ${v.status === 'available' ? 'Just now' : 'Active'}
+            </span>
+        </div>
+
+        <div class="v-meta" style="margin-bottom: 0;">
+            <span class="v-label">Contact:</span>
+            <span class="v-value">${v.phone || 'N/A'}</span>
+        </div>
+    </div>
+
+    <div class="v-actions">
+        <button class="btn-action profile-btn">Profile</button>
+
+        ${
+            v.status === 'available'
+                ? `<button class="btn-action primary assign-btn">Assign Case</button>`
+                : `
+                    <button class="btn-action primary unassign-btn">Unassign</button>
+                    <button class="btn-action danger close-btn">Close Case</button>
+                  `
+        }
+
+        <button class="btn-action danger remove-btn">Remove</button>
+    </div>
+`;
+
+volunteerList.appendChild(card);
+
+// Attach event listeners safely
+// Profile
+card.querySelector('.profile-btn')
+    .addEventListener('click', () => {
+        window.location.href = `volunteer-profile.html?id=${v.id}`;
+    });
+
+// Remove
+card.querySelector('.remove-btn')
+    .addEventListener('click', () => removeVolunteer(v.id, v.name));
+
+// Assign / Unassign / Close
+if (v.status === 'available') {
+    card.querySelector('.assign-btn')
+    .addEventListener('click', () => assignCase(v));
+
+} else {
+    card.querySelector('.unassign-btn')
+        .addEventListener('click', () => unassignCase(v.id, v.name));
+
+    card.querySelector('.close-btn')
+        .addEventListener('click', () => closeCase(v.id, v.name));
+}
+
+                // volunteerList.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        /**
+         * 4. Register Volunteer (Dummy Data Requirement)
+         */
+        // Elements
+const registerModal = document.getElementById('registerModal');
+const registerForm = document.getElementById('registerForm');
+const closeModal = document.getElementById('closeModal');
+const registerBtn = document.getElementById('registerBtn'); // Your + Register Volunteer button
+const genericModal = document.getElementById('genericModal');
+const genericTitle = document.getElementById('genericTitle');
+const genericMessage = document.getElementById('genericMessage');
+const genericActions = document.getElementById('genericActions');
+
+// Show a modal with custom buttons
+function showModal({ title, message, type = "info", buttons = [] }) {
+    genericTitle.innerHTML = `
+        <span class="modal-icon">
+            ${type === "success" ? "✅" : type === "warning" ? "⚠️" : type === "error" ? "❌" : "ℹ️"}
+        </span> ${title}
+    `;
+    genericMessage.innerText = message;
+
+    // Clear old buttons
+    genericActions.innerHTML = '';
+
+    buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.innerText = btn.text;
+        button.className = btn.class || 'btn-action';
+        button.onclick = () => {
+            if (btn.onClick) btn.onClick();
+            genericModal.classList.remove('active');
+        };
+        genericActions.appendChild(button);
+    });
+
+    genericModal.classList.add('active');
+}
+
+
+// Close modal when clicking outside content
+genericModal.addEventListener('click', (e) => {
+    if (e.target === genericModal) genericModal.classList.remove('active');
+});
+
+
+// Open modal
+registerBtn.addEventListener('click', () => {
+    registerModal.classList.add('active');
+});
+
+// Close modal
+closeModal.addEventListener('click', () => {
+    registerModal.classList.remove('active');
+});
+
+// Also close modal on overlay click
+registerModal.addEventListener('click', (e) => {
+    if (e.target === registerModal) registerModal.classList.remove('active');
+});
+
+// Submit form
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitBtn = registerForm.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Adding...";
+    if (!auth.currentUser) {
+        alert("Authentication not ready. Please wait.");
+        return;
+    }
+
+    const name = document.getElementById('volName').value.trim();
+    const area = document.getElementById('volArea').value.trim();
+    const role = document.getElementById('volRole').value.trim();
+    const phone = document.getElementById('volPhone').value.trim();
+
+    if (!name || !area || !role || !phone) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    try {
+        const volunteersCol = collection(db, 'artifacts', appId, 'public', 'data', 'volunteers');
+
+        await addDoc(volunteersCol, {
+            name,
+            role,
+            area,
+            status: "available",
+            phone,
+            createdAt: serverTimestamp()
+        });
+
+
+showModal({
+    title: "Volunteer Added",
+    message: `${name} has been successfully added to the volunteer list.`,
+    buttons: [{ text: "OK", class: "submit-btn" }]
+});
+
+registerForm.reset();
+registerModal.classList.remove('active');
+
+        registerForm.reset();
+       submitBtn.disabled = false;
+    submitBtn.innerText = "Add Volunteer";
+
+    } catch (e) {
+        console.error("Error adding volunteer:", e);
+        alert("Failed to add volunteer. Check console for details.");
+    }
+});
+
+    async function assignCase(volunteer) {
+    try {
+        const incidentsCol = incidentsCollection();
+
+        const q = query(
+            incidentsCollection(),
+            where('status', '==', 'open'),
+            where('assignedTo', '==', null)
+        );
+
+        const snapshot = await getDocs(q);
+
+        cachedOpenCases = [];
+
+        snapshot.forEach(docSnap => {
+            const d = docSnap.data();
+            if (d.assignedTo === null) {
+                cachedOpenCases.push({
+                    id: docSnap.id,
+                    label: `#${docSnap.id} • ${d.area || 'Unknown'}`
+                });
+            }
+        });
+
+        if (cachedOpenCases.length === 0) {
+            showModal({
+                title: 'No Open Cases',
+                message: 'There are no unassigned cases available.',
+                buttons: [{ text: 'OK', class: 'submit-btn' }]
+            });
+            return;
+        }
+
+        const select = document.getElementById('caseSelect');
+        select.innerHTML = '<option value="">Select a case</option>';
+        cachedOpenCases.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.label;
+            select.appendChild(opt);
+        });
+
+        openAssignModal(volunteer);
+
+    } catch (error) {
+        console.error('Assign case error:', error);
+        showModal({
+            title: 'Error',
+            message: 'Failed to load cases.',
+            buttons: [{ text: 'OK', class: 'submit-btn' }]
+        });
+    }
+}
+
+
+
+async function unassignCase(volId, volName) {
+    showModal({
+        title: 'Unassign Case',
+        message: `Remove ${volName} from the current case?`,
+        buttons: [
+            { text: 'Cancel', class: 'cancel-btn' },
+            {
+                text: 'Unassign',
+                class: 'submit-btn',
+                onClick: async () => {
+                    try {
+                        // Find assigned case
+                        const q = query(
+                            incidentsCollection(),
+                            where('assignedTo', '==', volId)
+                        );
+
+
+                        const snap = await getDocs(q);
+                        if (snap.empty) return;
+
+                        const caseDoc = snap.docs[0];
+
+                        // Update incident
+                        await updateDoc(caseDoc.ref, {
+                            assignedTo: null,
+                            status: 'open'
+                        });
+
+                        // Update volunteer
+                        await updateDoc(
+                            doc(db, 'artifacts', appId, 'public', 'data', 'volunteers', volId),
+                            { status: 'available' }
+                        );
+
+                        showModal({
+                            title: 'Unassigned',
+                            message: `${volName} is now available.`,
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+
+                    } catch (err) {
+                        console.error(err);
+                        showModal({
+                            title: 'Error',
+                            message: 'Failed to unassign case.',
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+                    }
+                }
+            }
+        ]
+    });
+}
+
+async function closeCase(volId, volName) {
+    showModal({
+        title: 'Close Case',
+        message: `Mark the case handled by ${volName} as CLOSED?`,
+        buttons: [
+            { text: 'Cancel', class: 'cancel-btn' },
+            {
+                text: 'Close Case',
+                class: 'submit-btn',
+                onClick: async () => {
+                    try {
+                        const q = query(
+                            incidentsCollection(),
+                            where('assignedTo', '==', volId)
+                        );
+
+
+                        const snap = await getDocs(q);
+                        if (snap.empty) {
+                            showModal({
+                                title: 'No Active Case',
+                                message: `${volName} has no active assigned case.`,
+                                buttons: [{ text: 'OK', class: 'submit-btn' }]
+                            });
+                            return;
+                        }
+
+
+                        const caseDoc = snap.docs[0];
+
+                        // Close incident
+                        await updateDoc(caseDoc.ref, {
+                        status: 'closed',
+                        assignedTo: null,
+                        volunteerName: null
+                    });
+
+
+
+                        // Free volunteer
+                        await updateDoc(
+                            doc(db, 'artifacts', appId, 'public', 'data', 'volunteers', volId),
+                            { status: 'available' }
+                        );
+
+                        showModal({
+                            title: 'Case Closed',
+                            message: `Case successfully closed by ${volName}.`,
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+
+                    } catch (err) {
+                        console.error(err);
+                        showModal({
+                            title: 'Error',
+                            message: 'Failed to close case.',
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+                    }
+                }
+            }
+        ]
+    });
+}
+
+
+let selectedVolunteer = null;
+let cachedOpenCases = [];
+
+function openAssignModal(volunteer) {
+    selectedVolunteer = volunteer;
+    document.getElementById('assignCaseModal').style.display = 'flex';
+}
+
+function closeAssignModal() {
+    document.getElementById('assignCaseModal').style.display = 'none';
+    selectedVolunteer = null;
+}
+
+async function confirmAssignCase() {
+    const caseId = document.getElementById('caseSelect').value;
+    if (!caseId || !selectedVolunteer || !selectedVolunteer.id) {
+    showModal({
+        title: 'Error',
+        message: 'Volunteer selection lost. Please retry.',
+        buttons: [{ text: 'OK', class: 'submit-btn' }]
+    });
+    return;
+}
+
+    try {
+        // Update INCIDENT
+        await updateDoc(
+        doc(db, 'incidents', caseId),
+        {
+            assignedTo: selectedVolunteer.id,
+            status: 'assigned'
+        }
+        );
+
+
+        // Update VOLUNTEER
+        await updateDoc(
+            doc(db, 'artifacts', appId, 'public', 'data', 'volunteers', selectedVolunteer.id),
+            {
+                status: 'busy'
+            }
+        );
+
+        const volunteerName = selectedVolunteer.name;
+
+        closeAssignModal();
+
+        showModal({
+            title: 'Case Assigned',
+            message: `${volunteerName} has been assigned to case #${caseId}.`,
+            buttons: [{ text: 'OK', class: 'submit-btn' }]
+        });
+
+
+    } catch (err) {
+        console.error(err);
+        showModal({
+            title: 'Error',
+            message: 'Failed to assign case.',
+            buttons: [{ text: 'OK', class: 'submit-btn' }]
+        });
+    }
+}
+
+
+
+        // Initialize Filter logic
+        function applyFilters() {
+            const nameVal = document.getElementById('nameSearch').value.toLowerCase();
+            const districtVal = document.getElementById('districtFilter').value;
+            
+            if (!window.cachedVolunteers) return;
+            
+            const filtered = window.cachedVolunteers.filter(v => {
+                const matchesName = v.name.toLowerCase().includes(nameVal) || v.role.toLowerCase().includes(nameVal);
+                const matchesDistrict = districtFilter.value === "All Districts" || v.area === districtFilter.value;
+                return matchesName && matchesDistrict;
+            });
+            renderVolunteers(filtered);
+        }
+
+        document.getElementById('nameSearch').addEventListener('input', applyFilters);
+        document.getElementById('districtFilter').addEventListener('change', applyFilters);
+
+        // Start Auth
+        // authenticate();
+
+
+        window.removeVolunteer = function(volId, volName) {
+    showModal({
+        title: 'Confirm Removal',
+        message: `Are you sure you want to remove ${volName} from volunteers?`,
+        buttons: [
+            {
+                text: 'Cancel',
+                class: 'cancel-btn',
+                onClick: () => {}
+            },
+            {
+                text: 'Remove',
+                class: 'submit-btn',
+                onClick: async () => {
+                    try {
+                        const volunteerDoc = doc(db, 'artifacts', appId, 'public', 'data', 'volunteers', volId);
+                        await deleteDoc(volunteerDoc);
+                        showModal({
+                            title: 'Removed',
+                            message: `${volName} has been removed successfully.`,
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+                    } catch (error) {
+                        console.error("Error removing volunteer:", error);
+                        showModal({
+                            title: 'Error',
+                            message: 'Failed to remove volunteer. Check console for details.',
+                            buttons: [{ text: 'OK', class: 'submit-btn' }]
+                        });
+                    }
+                }
+            }
+        ]
+    });
+};
+
+    window.confirmAssignCase = confirmAssignCase;
+window.closeAssignModal = closeAssignModal;
+
+
+    </script>
+<!-- Register Volunteer Modal -->
+<div id="registerModal">
+    <div class="modal-content">
+        <h2>Register New Volunteer</h2>
+        <form id="registerForm">
+            <input type="text" id="volName" placeholder="Full Name" required>
+            <input type="text" id="volArea" placeholder="Area / District" required>
+            <input type="text" id="volRole" placeholder="Role / Designation" required>
+            <input type="text" id="volPhone" placeholder="Contact Number" required>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="closeModal">Cancel</button>
+                <button type="submit" class="submit-btn">Add Volunteer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Assign Case Modal -->
+<div id="assignCaseModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(4px); z-index:4000; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:2rem; border-radius:1rem; width:420px; max-width:90%; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
+    <h2 style="margin-bottom:1rem; color:#1e3a8a;">Assign Case</h2>
+
+    <select id="caseSelect" style="width:100%; padding:0.6rem; border-radius:0.5rem; border:1px solid #e5e7eb; margin-bottom:1.25rem;">
+      <option value="">Loading cases...</option>
+    </select>
+
+    <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+      <button onclick="closeAssignModal()" class="cancel-btn">Cancel</button>
+      <button onclick="confirmAssignCase()" class="submit-btn">Assign</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="auth-guard.js"></script>
+</body>
+</html>

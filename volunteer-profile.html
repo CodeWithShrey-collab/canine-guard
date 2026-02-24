@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Profile | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            height: 70px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        /* Profile Layout */
+        .profile-wrapper { padding: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .back-link:hover { color: var(--primary); }
+
+        .profile-card {
+            background: var(--white);
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-header {
+            padding: 3rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-light);
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+
+        .profile-intro h1 { font-size: 2.25rem; color: var(--primary-dark); margin-bottom: 0.25rem; }
+        .profile-intro p { font-size: 1.1rem; color: var(--text-light); font-weight: 500; }
+
+        .profile-body { padding: 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+
+        .info-group { margin-bottom: 1.5rem; }
+        .info-label { font-size: 0.8rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem; }
+        .info-value { font-size: 1.1rem; font-weight: 600; color: var(--text-dark); }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-available { background: #f0fdf4; color: #166534; }
+        .status-busy { background: #fff7ed; color: #9a3412; }
+
+        /* Loading & Error States */
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-light);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Generic Modal (Synced with project) */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+
+        .modal {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-confirm {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header { flex-direction: column; text-align: center; padding: 2rem; }
+            .profile-body { grid-template-columns: 1fr; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+        </div>
+    </nav>
+
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="color: var(--text-light); font-weight: 600;">Retrieving Responder Profile...</p>
+    </div>
+
+    <main class="container profile-wrapper">
+        <a id="navBackLink" class="back-link">← Back to Volunteers List</a>
+
+        <div class="profile-card" id="profileContent" style="display: none;">
+            <header class="profile-header">
+                <div class="profile-avatar" id="profAvatar">??</div>
+                <div class="profile-intro">
+                    <h1 id="profName">...</h1>
+                    <p id="profRoleArea">...</p>
+                </div>
+            </header>
+
+            <div class="profile-body">
+                <div class="info-section">
+                    <div class="info-group">
+                        <span class="info-label">Current Status</span>
+                        <span id="profStatus" class="status-badge">...</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Contact Number</span>
+                        <span id="profPhone" class="info-value">...</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Base Jurisdiction</span>
+                        <span id="profArea" class="info-value">...</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-group">
+                        <span class="info-label">Assigned Case</span>
+                        <span id="profCase" class="info-value" style="color: var(--primary);">None</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Member Since</span>
+                        <span id="profDate" class="info-value">...</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Verification ID</span>
+                        <span id="profId" class="info-value" style="font-family: monospace; font-size: 0.9rem;">...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="padding: 2rem 3rem; background: #f8fafc; border-top: 1px solid var(--border); text-align: right;">
+                <button class="btn-confirm" id="closeProfileBtn" style="margin-top: 0; background: var(--bg-light); color: var(--text-dark); border: 1px solid var(--border);">Close Profile</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Error Modal -->
+    <div id="msgModal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="color: var(--danger); margin-bottom: 1rem;">Profile Not Found</h3>
+            <p id="modalMsg" style="color: var(--text-light);">The requested volunteer ID is invalid or has been removed from the system.</p>
+            <button class="btn-confirm" id="errorReturnBtn">Return to List</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Environment Variables
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+                authDomain: "canineguard-8abb8.firebaseapp.com",
+                projectId: "canineguard-8abb8",
+                storageBucket: "canineguard-8abb8.firebasestorage.app",
+                messagingSenderId: "69261315771",
+                appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+            };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'canineguard-8abb8';
+
+        /**
+         * Rule 3: Auth Before Queries
+         */
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    
+                }
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                showError("Identity verification failed. Please check your connection.");
+            }
+        };
+
+        // Listen for auth state to trigger data loading
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadProfile();
+            }
+        });
+
+        async function loadProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const volunteerId = urlParams.get('id');
+
+            if (!volunteerId) {
+                showError("No Volunteer ID provided in URL.");
+                return;
+            }
+
+            try {
+                // Rule 1: Strict Path Structure /artifacts/{appId}/public/data/{collectionName}
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'volunteers', volunteerId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    populateUI(docSnap.id, docSnap.data());
+                } else {
+                    showError("The volunteer record does not exist in our database.");
+                }
+            } catch (error) {
+                console.error("Firestore Error:", error);
+                showError("A connection error occurred while retrieving data.");
+            }
+        }
+
+        function populateUI(id, data) {
+            // Header info
+            document.getElementById('profName').innerText = data.name || "Unnamed Volunteer";
+            document.getElementById('profRoleArea').innerText = `${data.role || 'Volunteer'} • ${data.area || 'General'}`;
+            
+            // Avatar initials
+            const initials = data.name ? data.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??';
+            const avatar = document.getElementById('profAvatar');
+            avatar.innerText = initials;
+            if (data.status === 'available') {
+                avatar.style.background = '#dcfce7';
+                avatar.style.color = '#166534';
+            }
+
+            // Status Badge
+            const statusEl = document.getElementById('profStatus');
+            statusEl.innerText = data.status || 'unknown';
+            statusEl.className = `status-badge ${data.status === 'available' ? 'status-available' : 'status-busy'}`;
+
+            // Details
+            document.getElementById('profPhone').innerText = data.phone || 'N/A';
+            document.getElementById('profArea').innerText = data.area || 'General Area';
+            document.getElementById('profCase').innerText = 'View in incidents';
+            document.getElementById('profId').innerText = id;
+
+            // Date Formatting
+            if (data.createdAt) {
+                const date = data.createdAt.toDate();
+                document.getElementById('profDate').innerText = date.toLocaleDateString('en-GB', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+            } else {
+                document.getElementById('profDate').innerText = "Unavailable";
+            }
+
+            // Transition UI
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('profileContent').style.display = 'flex';
+        }
+
+        function showError(msg) {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('modalMsg').innerText = msg;
+            document.getElementById('msgModal').style.display = 'flex';
+        }
+
+        // Event Listeners for safe navigation
+        const navigateToList = () => {
+            window.location.href = 'volunteers.html';
+        };
+
+        document.getElementById('navBackLink').addEventListener('click', navigateToList);
+        document.getElementById('closeProfileBtn').addEventListener('click', navigateToList);
+        document.getElementById('errorReturnBtn').addEventListener('click', navigateToList);
+
+        // Run authentication
+        initAuth();
+
+
+    </script>
+    <script type="module" src="auth-guard.js"></script>
+</body>
+</html>

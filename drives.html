@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaccination & Sterilization Planning | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover, .nav-link.active { 
+            color: var(--primary); 
+            background: rgba(30, 64, 175, 0.05);
+        }
+
+        @media (max-width: 850px) {
+            nav { padding: 1rem 0; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links-wrapper { width: 100%; justify-content: center; flex-wrap: wrap; gap: 0.25rem; }
+            .nav-link { padding: 0.3rem 0.4rem; font-size: 0.75rem; }
+        }
+
+        /* Page Layout */
+        .page-header { padding: 2rem 0; }
+        .page-header h1 { font-size: 1.8rem; color: var(--primary-dark); }
+        .page-header p { color: var(--text-light); }
+
+        /* Stats grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .stat-card { 
+            background: var(--white); 
+            padding: 1.5rem; 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow); 
+            border-top: 4px solid var(--accent); 
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-top-width: 6px; }
+        .stat-label { font-size: 0.85rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; }
+        .stat-value { font-size: 2rem; font-weight: 800; display: block; margin-top: 0.5rem; color: var(--primary-dark); }
+
+        /* AI Section */
+        .ai-section { margin-bottom: 3rem; }
+        .section-title { font-weight: 800; color: var(--primary-dark); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .priority-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .priority-card { 
+            background: var(--white); 
+            padding: 1.5rem; 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow); 
+            border-left: 5px solid #cbd5e1; /* Default neutral */
+            transition: all 0.3s ease;
+        }
+        .priority-card:hover { transform: scale(1.02); box-shadow: var(--shadow-hover); }
+        .priority-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--primary-dark); }
+        .priority-card p { font-size: 0.85rem; color: var(--text-light); line-height: 1.5; }
+        .priority-badge { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 2rem; display: inline-block; margin-bottom: 0.5rem; }
+
+        /* Planning Form */
+        .planning-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        @media (max-width: 900px) { .planning-grid { grid-template-columns: 1fr; } }
+
+        .card-panel { 
+            background: var(--white); 
+            padding: 2rem; 
+            border-radius: 1rem; 
+            box-shadow: var(--shadow); 
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .card-panel:hover { box-shadow: var(--shadow-hover); border-color: var(--accent); }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .form-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem; font-family: inherit; font-size: 0.9rem; outline-color: var(--primary); }
+        
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 0.8rem; border-radius: 0.5rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-submit:hover { background: var(--primary-dark); transform: scale(1.02); }
+        .btn-submit:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* Table */
+        .table-container { width: 100%; overflow-x: auto; margin-top: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); border-bottom: 1px solid var(--border); }
+        td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        .type-pill { padding: 0.2rem 0.6rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 700; }
+        .type-vacc { background: #e0f2fe; color: #0369a1; }
+        .type-ster { background: #fef3c7; color: #92400e; }
+        .type-inte { background: #dcfce7; color: #166534; }
+        .type-other { background: #f3f4f6; color: #4b5563; }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container nav-container" style="display:flex; justify-content:space-between; align-items:center;">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+            <div class="nav-links-wrapper" style="display: flex; align-items: center;">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="risk-map.html" class="nav-link">Risk Map</a>
+                <a href="ngo-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="volunteers.html" class="nav-link">Volunteers</a>
+                <a href="drives.html" class="nav-link active">Planning</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="page-header">
+            <h1>Vaccination & Sterilization Planning</h1>
+            <p>AI-Assisted strategy for population control and rabies prevention.</p>
+        </header>
+
+        <!-- Summary Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Total Conducted</span>
+                <span class="stat-value" id="conductedCount">...</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Animals Covered</span>
+                <span class="stat-value" id="coveredCount">...</span>
+            </div>
+            <div class="stat-card" style="border-top-color: var(--success);">
+                <span class="stat-label">Immunity Rate</span>
+                <span class="stat-value" id="immunityRate">...</span>
+            </div>
+            <div class="stat-card" style="border-top-color: var(--warning);">
+                <span class="stat-label">Sterilization Rate</span>
+                <span class="stat-value" id="sterilizationRate">...</span>
+            </div>
+        </section>
+
+        <!-- AI Priority Areas -->
+        <section class="ai-section">
+            <h2 class="section-title">🧠 AI-Based Suggestions: Priority Areas</h2>
+            <div class="priority-grid" id="aiSuggestionsGrid">
+                <p style="color:#6b7280; grid-column: 1/-1;">Analyzing real-time population data...</p>
+            </div>
+        </section>
+
+        <div class="planning-grid">
+            <!-- Schedule Form -->
+            <section>
+                <h2 class="section-title">📅 Schedule New Drive</h2>
+                <div class="card-panel">
+                    <form id="scheduleForm">
+                        <div class="form-group">
+                            <label>Target Area</label>
+                            <input type="text" id="driveArea" class="form-input" placeholder="Neighborhood or district name..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>Drive Date</label>
+                            <input type="date" id="driveDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Drive Type</label>
+                            <select id="driveType" class="form-input">
+                                <option value="Vaccination">Anti-Rabies Vaccination (ARV)</option>
+                                <option value="Sterilization">Animal Birth Control (Sterilization)</option>
+                                <option value="Integrated">Integrated (ARV + ABC)</option>
+                                <option value="Other">Other (Specify below)</option>
+                            </select>
+                            <input type="text" id="customType" class="form-input" placeholder="Specify custom drive type..." style="margin-top: 0.75rem; display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Animal Count</label>
+                            <input type="number" id="driveCount" class="form-input" placeholder="e.g. 50" required>
+                        </div>
+                        <button type="submit" class="btn-submit" id="submitBtn">Confirm and Broadcast to Volunteers</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Past Drives Log -->
+            <section>
+                <h2 class="section-title">📜 Past Drives Log</h2>
+                <div class="card-panel" style="padding: 0;">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Area</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pastDrivesBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                        Connecting to responder hub...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer style="margin-top: 4rem; padding: 3rem 0; background: #111827; color: #9ca3af; text-align: center;">
+        <div class="container">
+            <p>&copy; 2024 CanineGuard Monitoring Systems. Planning portal for authorized use only.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Global Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'canineguard-8abb8';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // UI Helpers
+        const driveTypeEl = document.getElementById('driveType');
+        const customTypeEl = document.getElementById('customType');
+        driveTypeEl.addEventListener('change', () => {
+            customTypeEl.style.display = driveTypeEl.value === 'Other' ? 'block' : 'none';
+        });
+
+        /**
+         * 1. Mandatory Auth Flow (RULE 3)
+         * Ensuring auth is awaited before data fetch
+         */
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) { 
+                console.error("Auth error", err); 
+                document.getElementById('aiSuggestionsGrid').innerHTML = `<p style="color:var(--danger);">Authentication error. Please refresh.</p>`;
+            }
+        };
+
+        // Guard listeners with onAuthStateChanged
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                startRosterListener();
+                startAISuggestionsListener();
+            }
+        });
+
+        /**
+         * 2. AI Suggestions Listener
+         * Path: artifacts/{appId}/public/data/ai_suggestions
+         */
+        function startAISuggestionsListener() {
+            if (!auth.currentUser) return;
+            
+            const aiCol = collection(db, 'artifacts', appId, 'public', 'data', 'ai_suggestions');
+            const grid = document.getElementById('aiSuggestionsGrid');
+
+            onSnapshot(aiCol, (snapshot) => {
+                if (snapshot.empty) {
+                    grid.innerHTML = `<p style="color:#6b7280; grid-column: 1/-1;">No AI insights available yet. Analyzing incident logs...</p>`;
+                    return;
+                }
+
+                const suggestions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Business Requirement: Sort by Priority (High > Med > Low) then Confidence (Desc)
+                const priorityWeight = { 'high': 3, 'medium': 2, 'low': 1 };
+                suggestions.sort((a, b) => {
+                    const diff = priorityWeight[b.priority] - priorityWeight[a.priority];
+                    if (diff !== 0) return diff;
+                    return (b.confidence || 0) - (a.confidence || 0);
+                });
+
+                grid.innerHTML = suggestions.map(s => {
+                    const borderCol = s.priority === 'high' ? 'var(--danger)' : 
+                                    (s.priority === 'medium' ? 'var(--warning)' : '#94a3b8');
+                    const badgeBg = s.priority === 'high' ? '#fee2e2' : 
+                                  (s.priority === 'medium' ? '#fef3c7' : '#f1f5f9');
+                    const badgeText = s.priority === 'high' ? 'var(--danger)' : 
+                                    (s.priority === 'medium' ? 'var(--warning)' : '#475569');
+
+                    return `
+                        <div class="priority-card" style="border-left-color: ${borderCol}">
+                            <span class="priority-badge" style="background: ${badgeBg}; color: ${badgeText}">
+                                ${s.priority} Priority
+                            </span>
+                            <h3>${s.area}</h3>
+                            <p><strong>Insight:</strong> ${s.reason}</p>
+                            <p style="margin-top:0.5rem; color: var(--primary-dark); font-weight:600;">
+                                ${s.recommendation}
+                            </p>
+                            <div style="margin-top:1rem; font-size:0.7rem; color:#94a3b8; display:flex; justify-content:space-between;">
+                                <span>Model Confidence: ${Math.round((s.confidence || 0) * 100)}%</span>
+                                <span>Updated: ${s.generatedAt?.toDate().toLocaleDateString() || 'Recently'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }, (error) => {
+                console.error("AI Listener Error:", error);
+                if (error.code === 'permission-denied') {
+                    grid.innerHTML = `<p style="color:var(--danger); grid-column: 1/-1;">Missing permissions for AI insights path.</p>`;
+                }
+            });
+        }
+
+        /**
+         * 3. Drives Table & Stats Listener
+         */
+        function startRosterListener() {
+            if (!auth.currentUser) return;
+
+            const drivesCol = collection(db, 'artifacts', appId, 'public', 'data', 'drives');
+
+            onSnapshot(drivesCol, (snapshot) => {
+                const tableBody = document.getElementById('pastDrivesBody');
+                
+                if (snapshot.empty) {
+                    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-light);">No drives recorded. Start by scheduling one above.</td></tr>`;
+                    updateStatsUI([]);
+                    return;
+                }
+
+                const drives = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Rule 2: Sort JS-side
+                drives.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
+                tableBody.innerHTML = drives.map(drive => {
+                    const typeClass = drive.type === 'Vaccination' ? 'type-vacc' : 
+                                     drive.type === 'Sterilization' ? 'type-ster' : 
+                                     drive.type === 'Integrated' ? 'type-inte' : 'type-other';
+                    const dateStr = drive.date ? new Date(drive.date).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    }) : "N/A";
+                    const statusStyle = drive.status === 'completed' ? 'color: var(--success)' : 'color: var(--primary)';
+                    
+                    return `
+                        <tr>
+                            <td>${dateStr}</td>
+                            <td>${drive.area}</td>
+                            <td><span class="type-pill ${typeClass}">${drive.type}</span></td>
+                            <td style="${statusStyle}; font-weight: 700; text-transform: capitalize;">${drive.status}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                updateStatsUI(drives);
+            }, (error) => {
+                console.error("Drives Listener Error:", error);
+                if (error.code === 'permission-denied') {
+                    document.getElementById('pastDrivesBody').innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--danger);">Insufficient permissions for drives path.</td></tr>`;
+                }
+            });
+        }
+
+        function updateStatsUI(drives) {
+            const total = drives.length;
+            const completedDrives = drives.filter(d => d.status === "completed");
+            const conducted = completedDrives.length;
+            const covered = completedDrives.reduce((sum, d) => sum + (Number(d.estimatedCount) || 0), 0);
+            
+            const vaccinationCount = drives.filter(d => d.type === "Vaccination" || d.type === "Integrated").length;
+            const sterCount = drives.filter(d => d.type === "Sterilization" || d.type === "Integrated").length;
+
+            document.getElementById('conductedCount').innerText = conducted.toLocaleString();
+            document.getElementById('coveredCount').innerText = covered.toLocaleString();
+            document.getElementById('immunityRate').innerText = total > 0 ? Math.round((vaccinationCount / total) * 100) + "%" : "0%";
+            document.getElementById('sterilizationRate').innerText = total > 0 ? Math.round((sterCount / total) * 100) + "%" : "0%";
+        }
+
+        /**
+         * 4. Form Submission
+         */
+        document.getElementById('scheduleForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (!auth.currentUser) return alert("Signing in...");
+
+            const btn = document.getElementById('submitBtn');
+            const finalType = driveTypeEl.value === 'Other' ? customTypeEl.value : driveTypeEl.value;
+
+            btn.disabled = true;
+            btn.innerText = "Syncing with Command Hub...";
+
+            try {
+                const drivesCol = collection(db, 'artifacts', appId, 'public', 'data', 'drives');
+                await addDoc(drivesCol, {
+                    area: document.getElementById('driveArea').value,
+                    date: document.getElementById('driveDate').value,
+                    type: finalType,
+                    estimatedCount: Number(document.getElementById('driveCount').value),
+                    status: "scheduled",
+                    createdAt: serverTimestamp()
+                });
+                e.target.reset();
+                customTypeEl.style.display = 'none';
+                alert("Operation Confirmed.");
+            } catch (err) { 
+                console.error("Write error:", err);
+                alert("Access restricted. Check data path permissions."); 
+            }
+            btn.disabled = false;
+            btn.innerText = "Confirm and Broadcast to Volunteers";
+        };
+
+        initAuth();
+    </script>
+</body>
+</html>

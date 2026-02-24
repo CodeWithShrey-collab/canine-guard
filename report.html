@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Incident | CanineGuard</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --secondary: #f97316;
+            --accent: #0ea5e9;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f3f4f6;
+            --white: #ffffff;
+            --success: #10b981;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation mimicking index.html */
+        nav {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logo-icon { color: var(--secondary); }
+
+        /* Form Container */
+        .form-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: var(--white);
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover { background-color: #ea580c; }
+        .btn-primary:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .checkbox-group input {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        /* Success Message Overlay */
+        #success-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--white);
+            z-index: 3000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            color: var(--success);
+            margin-bottom: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🐕</span> CanineGuard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-card">
+            <h1>Incident Report</h1>
+            <p class="subtitle">Help us map risks by providing accurate incident details.</p>
+
+            <form id="incidentForm" onsubmit="handleSubmit(event)">
+                
+                <div class="form-group">
+                    <label>Location (GPS)</label>
+                    <div class="location-grid">
+                        <input type="text" id="lat" placeholder="Latitude" readonly required>
+                        <input type="text" id="lng" placeholder="Longitude" readonly required>
+                        <button type="button" class="btn btn-outline" id="detectBtn" onclick="getLocation()">Detect GPS</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="datetime">Date and Time</label>
+                    <input type="datetime-local" id="datetime" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="severity">Severity Level</label>
+                    <select id="severity" required>
+                        <option value="">Select Severity...</option>
+                        <option value="minor">Minor (Nip / Aggressive barking)</option>
+                        <option value="moderate">Moderate (Single bite / Bleeding)</option>
+                        <option value="severe">Severe (Multiple bites / Hospitalization required)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Incident Description</label>
+                    <textarea id="description" rows="4" placeholder="Describe the dog's appearance and how the incident happened..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image">Upload Photo (Optional)</label>
+                    <input type="file" id="image" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="anonymous">
+                        <span>Submit anonymously</span>
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary">Submit Secure Report</button>
+                <div style="text-align: center; margin-top: 1rem;">
+                    <a href="index.html" style="color: var(--text-light); text-decoration: none; font-size: 0.9rem;">Cancel and go back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="success-overlay">
+        <div class="success-icon">✓</div>
+        <h2>Report Logged</h2>
+        <p style="color: var(--text-light); margin: 1rem 0 2rem;">Your report has been successfully added to our AI tracking system. Reference ID: <strong id="ref-id"></strong></p>
+        <a href="index.html" class="btn btn-primary" style="max-width: 250px;">Return Home</a>
+    </div>
+
+    <script type="module">
+        // 1. Firebase Initialization Block
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { 
+            getStorage, 
+            ref, 
+            uploadBytes, 
+            getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX39_jW-JiCwjT6xDFK9N5xaEphxEzHdk",
+            authDomain: "canineguard-8abb8.firebaseapp.com",
+            projectId: "canineguard-8abb8",
+            storageBucket: "canineguard-8abb8.firebasestorage.app",
+            messagingSenderId: "69261315771",
+            appId: "1:69261315771:web:b375c80c933dde3eb2239e"
+        };
+
+        // Initialize Firebase Services
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Auto-fill current date/time on load
+        window.onload = function() {
+            const now = new Date();
+            now.setMinutes(now.getTimezoneOffset() * -1 + now.getMinutes());
+            document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+        };
+
+        // Helper to get GPS Location
+        window.getLocation = function() {
+            const latInput = document.getElementById('lat');
+            const lngInput = document.getElementById('lng');
+            const detectBtn = document.getElementById('detectBtn');
+            
+            if (navigator.geolocation) {
+                detectBtn.innerText = "Locating...";
+                detectBtn.disabled = true;
+                
+                const geoOptions = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                };
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        latInput.value = position.coords.latitude.toFixed(6);
+                        lngInput.value = position.coords.longitude.toFixed(6);
+                        detectBtn.innerText = "Detect GPS";
+                        detectBtn.disabled = false;
+                    },
+                    (error) => {
+                        detectBtn.innerText = "Detect GPS";
+                        detectBtn.disabled = false;
+                        alert("Location error: " + error.message);
+                    },
+                    geoOptions
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        };
+
+        // 2. Main Submit Logic with Firestore and Storage
+        window.handleSubmit = async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const fileInput = document.getElementById('image');
+            const lat = document.getElementById('lat').value;
+            const lng = document.getElementById('lng').value;
+
+            if (!lat || !lng) {
+                alert("Please detect your GPS location before submitting.");
+                return;
+            }
+
+            submitBtn.innerText = "Uploading Report...";
+            submitBtn.disabled = true;
+
+            try {
+                let imageURL = null;
+
+                // 3. Upload Image to Storage (if provided)
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const storagePath = `incidents/${Date.now()}_${file.name}`;
+                    const storageRef = ref(storage, storagePath);
+                    
+                    const snapshot = await uploadBytes(storageRef, file);
+                    imageURL = await getDownloadURL(snapshot.ref);
+                }
+
+                // 4. Save to Firestore
+                const incidentData = {
+                    latitude: parseFloat(lat),
+                    longitude: parseFloat(lng),
+                    datetime: document.getElementById('datetime').value,
+                    severity: document.getElementById('severity').value,
+                    description: document.getElementById('description').value,
+                    anonymous: document.getElementById('anonymous').checked,
+                    imageURL: imageURL,
+                    status: "open",       // ✅ newly added
+                    assignedTo: null,     // ✅ newly added
+                    createdAt: serverTimestamp()
+                };
+
+                const docRef = await addDoc(collection(db, "incidents"), incidentData);
+
+                // 5. Success UI Update
+                document.getElementById('ref-id').innerText = docRef.id;
+                document.getElementById('success-overlay').style.display = 'flex';
+
+            } catch (error) {
+                console.error("Submission error:", error);
+                alert("Failed to submit report. Please check your connection and try again.");
+                submitBtn.innerText = "Submit Secure Report";
+                submitBtn.disabled = false;
+            }
+        };
+    </script>
+</body>
+</html>
