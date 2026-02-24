@@ -108,7 +108,14 @@ Developed as part of a Smart City / Safety Monitoring concept project.
 
 ### Incident Reporting Page
 
+---
 
+## ⚙️ Run Locally
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/CodeWithShrey-collab/canine-guard.git
+   
 ## ⭐ If You Like This Project
 
 Give it a star on GitHub ⭐
