@@ -105,8 +105,11 @@ Developed as part of a Smart City / Safety Monitoring concept project.
 
 ---
 ## 📸 Screenshots
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/b667c417-1766-48e7-938f-a51da6c9153a" />
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/1e052c3c-d057-4aed-8729-f78fcf135ed9" />
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/b4688d9f-5c84-4af6-b1af-5c4c903d256b" />
+<img width="1920" height="1020" alt="image" src="https://github.com/user-attachments/assets/4b4da4d3-91c2-4393-bd7f-3f7f7370cadf" />
 
-### Incident Reporting Page
 
 ---
 
